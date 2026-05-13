@@ -56,6 +56,7 @@ const emptyCultura = () => ({ soja: “”, sorgo: “”, milho: “”, algoda
 const emptyFazenda = () => ({
 cliente: “”, fazenda: “”, municipio: “”, estado: “”, status: “Ativo”,
 area_total: “”, ano_safra: “2025/26”,
+telefone: “”, email: “”, gerente: “”, consultor: “”,
 lat: “”, lng: “”,
 safra1_seq: emptyCultura(),
 safra1_irr: emptyCultura(),
@@ -70,9 +71,9 @@ const totalCultura = (c) => fmtN(c?.soja) + fmtN(c?.milho) + fmtN(c?.algodao) + 
 const totalFazenda = (f) => [f.safra1_seq, f.safra1_irr, f.safra2_seq, f.safra2_irr].reduce((s, c) => s + totalCultura(c), 0);
 
 // ─── Styles ──────────────────────────────────
-const INP = “w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-100 text-sm transition-colors”;
-const LBL = “block text-green-600 text-xs font-bold mb-1 uppercase tracking-widest”;
-const CARD = “border border-gray-200 bg-white rounded-xl shadow-sm”;
+const INP = “w-full bg-[#faf7f2] border border-[#ddd8cc] rounded-lg px-3 py-2 text-[#1a1a14] placeholder-[#a0987a] focus:outline-none focus:border-[#3a7a1a] focus:ring-1 focus:ring-[#e8f0d8] text-sm transition-colors”;
+const LBL = “block text-[#3a7a1a] text-xs font-bold mb-1 uppercase tracking-wider”;
+const CARD = “border border-[#ddd8cc] bg-[#faf7f2] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.07)]”;
 
 function Fld({ label, children, col }) {
 return <div className={col}><label className={LBL}>{label}</label>{children}</div>;
@@ -80,33 +81,35 @@ return <div className={col}><label className={LBL}>{label}</label>{children}</di
 
 // ─── Cities by state (main cities, lightweight) ──────
 const CITIES_BY_STATE = {
+// MATOPIBA completo — Portaria MAPA 244/2015
+MA:[“Açailândia”,“Afonso Cunha”,“Alto Parnaíba”,“Amarante do Maranhão”,“Arari”,“Avelino Lopes”,“Bacabal”,“Balsas”,“Barão de Grajaú”,“Barra do Corda”,“Brejo”,“Buriti Bravo”,“Caxias”,“Chapadinha”,“Codó”,“Coelho Neto”,“Colinas”,“Davinópolis”,“Dom Pedro”,“Duque Bacelar”,“Esperantinópolis”,“Estreito”,“Feira Nova do Maranhão”,“Fernando Falcão”,“Formosa da Serra Negra”,“Fortaleza dos Nogueiras”,“Fortuna”,“Gonçalves Dias”,“Governador Archer”,“Governador Edison Lobão”,“Governador Eugênio Barros”,“Grajaú”,“Guadalupe”,“Imperatriz”,“Itaipava do Grajaú”,“Jatobá”,“João Lisboa”,“Joselândia”,“Lago da Pedra”,“Lago do Junco”,“Lago dos Rodrigues”,“Lagoa Grande do Maranhão”,“Lajeado Novo”,“Lima Campos”,“Loreto”,“Magalhães de Almeida”,“Mata Roma”,“Matões”,“Matões do Norte”,“Milagres do Maranhão”,“Mirador”,“Miranda do Norte”,“Montes Altos”,“Nova Colinas”,“Nova Iorque”,“Paraibano”,“Pastos Bons”,“Pedreiras”,“Peritoró”,“Porto Franco”,“Presidente Dutra”,“Riachão”,“Ribamar Fiquene”,“Sambaíba”,“Santa Filomena do Maranhão”,“Santo Antônio dos Lopes”,“São Domingos do Azeitão”,“São Felix de Balsas”,“São Francisco do Brejão”,“São Francisco do Maranhão”,“São João do Paraíso”,“São Luís Gonzaga do Maranhão”,“São Pedro dos Crentes”,“São Raimundo das Mangabeiras”,“São Raimundo do Doca Bezerra”,“São Roberto”,“Senador Alexandre Costa”,“Senador La Rocque”,“Sítio Novo”,“Sucupira do Norte”,“Sucupira do Riachão”,“Tasso Fragoso”,“Tuntum”,“Urbano Santos”,“Vargem Grande”,“Vila Nova dos Martírios”,“Vitória do Mearim”,“Zé Doca”],
+TO:[“Aguiarnópolis”,“Aliança do Tocantins”,“Almas”,“Alvorada”,“Ananás”,“Angico”,“Aparecida do Rio Negro”,“Aragominas”,“Araguacema”,“Araguaçu”,“Araguaína”,“Araguanã”,“Araguatins”,“Arapoema”,“Arraias”,“Augustinópolis”,“Aurora do Tocantins”,“Axixá do Tocantins”,“Babaçulândia”,“Bandeirantes do Tocantins”,“Barra do Ouro”,“Barrolândia”,“Bernardo Sayão”,“Bom Jesus do Tocantins”,“Brasilândia do Tocantins”,“Brejinho de Nazaré”,“Buriti do Tocantins”,“Cachoeirinha”,“Campos Lindos”,“Cariri do Tocantins”,“Carmolândia”,“Carrasco Bonito”,“Caseara”,“Centenário”,“Chapada da Natividade”,“Chapada de Areia”,“Colinas do Tocantins”,“Colméia”,“Combinado”,“Conceição do Tocantins”,“Couto Magalhães”,“Cristalândia”,“Crixás do Tocantins”,“Darcinópolis”,“Dianópolis”,“Divinópolis do Tocantins”,“Dois Irmãos do Tocantins”,“Dueré”,“Esperantina”,“Fátima”,“Figueirópolis”,“Filadélfia”,“Formoso do Araguaia”,“Fortaleza do Tabocão”,“Goianorte”,“Goiatins”,“Guaraí”,“Gurupi”,“Ipueiras”,“Itacajá”,“Itaguatins”,“Itapiratins”,“Itaporã do Tocantins”,“Jaú do Tocantins”,“Juarina”,“Lagoa da Confusão”,“Lagoa do Tocantins”,“Lajeado”,“Lavandeira”,“Lizarda”,“Luzinópolis”,“Marianópolis do Tocantins”,“Mateiros”,“Maurilândia do Tocantins”,“Miracema do Tocantins”,“Miranorte”,“Monte do Carmo”,“Monte Santo do Tocantins”,“Muricilândia”,“Natividade”,“Nazaré”,“Nova Olinda”,“Nova Rosalândia”,“Novo Acordo”,“Novo Alegre”,“Novo Jardim”,“Oliveira de Fátima”,“Palmas”,“Palmeirante”,“Palmeirópolis”,“Paraíso do Tocantins”,“Paranã”,“Pau D’Arco”,“Pedro Afonso”,“Peixe”,“Pequizeiro”,“Pindorama do Tocantins”,“Piraquê”,“Pium”,“Ponte Alta do Bom Jesus”,“Ponte Alta do Tocantins”,“Porto Alegre do Tocantins”,“Porto Nacional”,“Praia Norte”,“Presidente Kennedy”,“Pugmil”,“Recursolândia”,“Riachinho”,“Rio da Conceição”,“Rio dos Bois”,“Rio Sono”,“Sampaio”,“Santa Fé do Araguaia”,“Santa Maria do Tocantins”,“Santa Rita do Tocantins”,“Santa Rosa do Tocantins”,“Santa Tereza do Tocantins”,“Santa Terezinha do Tocantins”,“São Bento do Tocantins”,“São Félix do Tocantins”,“São Miguel do Tocantins”,“São Salvador do Tocantins”,“São Sebastião do Tocantins”,“São Valério”,“Silvanópolis”,“Sítio Novo do Tocantins”,“Sucupira”,“Taguatinga”,“Taipas do Tocantins”,“Talismã”,“Tocantínia”,“Tocantinópolis”,“Tupirama”,“Tupiratins”,“Wanderlândia”,“Xambioá”],
+PI:[“Alvorada do Gurguéia”,“Avelino Lopes”,“Bom Jesus”,“Baixa Grande do Ribeiro”,“Barreiras do Piauí”,“Bonfim do Piauí”,“Brejo do Piauí”,“Caracol”,“Corrente”,“Cristino Castro”,“Curimatá”,“Currais”,“Eliseu Martins”,“Fartura do Piauí”,“Gilbués”,“Guadalupe”,“Júlio Borges”,“Landri Sales”,“Manoel Emídio”,“Monte Alegre do Piauí”,“Morro Cabeça no Tempo”,“Palmeira do Piauí”,“Parnaguá”,“Pavussu”,“Porto Alegre do Piauí”,“Redenção do Gurguéia”,“Ribeiro Gonçalves”,“Santa Filomena”,“Santa Luz”,“Santa Rosa do Piauí”,“São Gonçalo do Gurguéia”,“Sebastião Barros”,“Sebastião Leal”,“Uruçuí”],
+BA:[“Baianópolis”,“Barreiras”,“Bonito”,“Brejolândia”,“Canápolis”,“Carinhanha”,“Cocos”,“Coribe”,“Correntina”,“Cotegipe”,“Cristópolis”,“Feira da Mata”,“Formosa do Rio Preto”,“Jaborandi”,“Luís Eduardo Magalhães”,“Mansidão”,“Riachão das Neves”,“Santa Maria da Vitória”,“Santa Rita de Cássia”,“Santana”,“São Desidério”,“Serra do Ramalho”,“Serra Dourada”,“Tabocas do Brejo Velho”,“Wanderley”],
+// Demais estados mantidos
 AC:[“Rio Branco”,“Cruzeiro do Sul”,“Sena Madureira”,“Tarauacá”,“Feijó”],
-AL:[“Maceió”,“Arapiraca”,“Palmeira dos Índios”,“Rio Largo”,“Penedo”,“União dos Palmares”,“São Miguel dos Campos”,“Santana do Ipanema”],
-AM:[“Manaus”,“Parintins”,“Itacoatiara”,“Manacapuru”,“Coari”,“Tefé”,“Tabatinga”,“Maués”],
+AL:[“Maceió”,“Arapiraca”,“Palmeira dos Índios”,“Rio Largo”,“Penedo”,“União dos Palmares”],
+AM:[“Manaus”,“Parintins”,“Itacoatiara”,“Manacapuru”,“Coari”,“Tefé”],
 AP:[“Macapá”,“Santana”,“Laranjal do Jari”,“Oiapoque”,“Mazagão”],
-BA:[“Salvador”,“Feira de Santana”,“Vitória da Conquista”,“Camaçari”,“Itabuna”,“Juazeiro”,“Lauro de Freitas”,“Ilhéus”,“Jequié”,“Barreiras”,“Luís Eduardo Magalhães”,“Paulo Afonso”,“Irecê”,“Senhor do Bonfim”,“Guanambi”,“Teixeira de Freitas”],
-CE:[“Fortaleza”,“Caucaia”,“Juazeiro do Norte”,“Maracanaú”,“Sobral”,“Crato”,“Itapipoca”,“Maranguape”,“Iguatu”,“Quixadá”,“Russas”,“Aquiraz”],
-DF:[“Brasília”,“Ceilândia”,“Taguatinga”,“Samambaia”,“Planaltina”,“Gama”,“Sobradinho”],
-ES:[“Vitória”,“Serra”,“Vila Velha”,“Cariacica”,“Cachoeiro de Itapemirim”,“Linhares”,“São Mateus”,“Colatina”,“Guarapari”,“Aracruz”],
-GO:[“Goiânia”,“Aparecida de Goiânia”,“Anápolis”,“Rio Verde”,“Luziânia”,“Águas Lindas de Goiás”,“Valparaíso de Goiás”,“Trindade”,“Formosa”,“Novo Gama”,“Itumbiara”,“Senador Canedo”,“Jataí”,“Catalão”,“Mineiros”,“Inhumas”,“Caldas Novas”,“Goianésia”,“Quirinópolis”,“Morrinhos”],
-MA:[“São Luís”,“Imperatriz”,“São José de Ribamar”,“Timon”,“Caxias”,“Codó”,“Paço do Lumiar”,“Açailândia”,“Bacabal”,“Balsas”],
-MG:[“Belo Horizonte”,“Uberlândia”,“Contagem”,“Juiz de Fora”,“Betim”,“Montes Claros”,“Ribeirão das Neves”,“Uberaba”,“Governador Valadares”,“Ipatinga”,“Sete Lagoas”,“Divinópolis”,“Santa Luzia”,“Ibirité”,“Poços de Caldas”,“Patos de Minas”,“Pouso Alegre”,“Teófilo Otoni”,“Barbacena”,“Sabará”,“Varginha”,“Araguari”,“Conselheiro Lafaiete”,“Ituiutaba”,“Araxá”,“Passos”,“Ubá”,“Frutal”,“Lavras”,“Três Corações”],
-MS:[“Campo Grande”,“Dourados”,“Três Lagoas”,“Corumbá”,“Ponta Porã”,“Naviraí”,“Nova Andradina”,“Aquidauana”,“Sidrolândia”,“Paranaíba”,“Maracaju”,“Coxim”,“Chapadão do Sul”,“Rio Brilhante”,“Amambai”],
-MT:[“Cuiabá”,“Várzea Grande”,“Rondonópolis”,“Sinop”,“Tangará da Serra”,“Cáceres”,“Sorriso”,“Lucas do Rio Verde”,“Primavera do Leste”,“Barra do Garças”,“Alta Floresta”,“Juína”,“Colíder”,“Nova Mutum”,“Campo Verde”,“Sapezal”,“Campo Novo do Parecis”,“Água Boa”,“Querência”,“Paranatinga”],
-PA:[“Belém”,“Ananindeua”,“Santarém”,“Marabá”,“Parauapebas”,“Castanhal”,“Abaetetuba”,“Cametá”,“Altamira”,“Itaituba”,“Redenção”,“Tucuruí”],
-PB:[“João Pessoa”,“Campina Grande”,“Santa Rita”,“Patos”,“Bayeux”,“Sousa”,“Cajazeiras”,“Cabedelo”],
-PE:[“Recife”,“Caruaru”,“Olinda”,“Petrolina”,“Paulista”,“Jaboatão dos Guararapes”,“Camaragibe”,“Garanhuns”,“Vitória de Santo Antão”,“Igarassu”,“São Lourenço da Mata”,“Cabo de Santo Agostinho”],
-PI:[“Teresina”,“Parnaíba”,“Picos”,“Piripiri”,“Floriano”,“Campo Maior”,“Barras”,“União”],
-PR:[“Curitiba”,“Londrina”,“Maringá”,“Ponta Grossa”,“Cascavel”,“São José dos Pinhais”,“Foz do Iguaçu”,“Colombo”,“Guarapuava”,“Paranaguá”,“Araucária”,“Toledo”,“Apucarana”,“Pinhais”,“Campo Largo”,“Arapongas”,“Almirante Tamandaré”,“Umuarama”,“Paranavaí”,“Francisco Beltrão”,“Campo Mourão”,“Cianorte”,“Cambé”,“Sarandi”,“Irati”,“Telêmaco Borba”,“Rolândia”,“Palmas”,“Ivaiporã”,“Cornélio Procópio”],
-RJ:[“Rio de Janeiro”,“São Gonçalo”,“Duque de Caxias”,“Nova Iguaçu”,“Niterói”,“Belford Roxo”,“São João de Meriti”,“Campos dos Goytacazes”,“Petrópolis”,“Volta Redonda”,“Magé”,“Itaboraí”,“Macaé”,“Cabo Frio”,“Nova Friburgo”,“Angra dos Reis”,“Nilópolis”,“Teresópolis”,“Mesquita”,“Queimados”],
-RN:[“Natal”,“Mossoró”,“Parnamirim”,“São Gonçalo do Amarante”,“Macaíba”,“Caicó”,“Açu”,“Currais Novos”],
-RO:[“Porto Velho”,“Ji-Paraná”,“Ariquemes”,“Vilhena”,“Cacoal”,“Rolim de Moura”,“Guajará-Mirim”,“Jaru”],
-RR:[“Boa Vista”,“Rorainópolis”,“Caracaraí”,“Alto Alegre”,“Mucajaí”],
-RS:[“Porto Alegre”,“Caxias do Sul”,“Pelotas”,“Canoas”,“Santa Maria”,“Gravataí”,“Viamão”,“Novo Hamburgo”,“São Leopoldo”,“Rio Grande”,“Alvorada”,“Passo Fundo”,“Sapucaia do Sul”,“Uruguaiana”,“Santa Cruz do Sul”,“Cachoeirinha”,“Bagé”,“Bento Gonçalves”,“Erechim”,“Guaíba”,“Cruz Alta”,“Lajeado”,“Ijuí”,“Alegrete”,“Santana do Livramento”,“Cachoeira do Sul”,“Santo Ângelo”,“Vacaria”,“Sarandi”,“Três Passos”],
-SC:[“Florianópolis”,“Joinville”,“Blumenau”,“São José”,“Chapecó”,“Criciúma”,“Itajaí”,“Lages”,“Jaraguá do Sul”,“Palhoça”,“Balneário Camboriú”,“Brusque”,“Tubarão”,“São Bento do Sul”,“Caçador”,“Concórdia”,“Xanxerê”,“Araranguá”,“Mafra”,“Rio do Sul”,“Camboriú”,“Videira”,“Joaçaba”,“Canoinhas”,“Maravilha”],
-SE:[“Aracaju”,“Nossa Senhora do Socorro”,“Lagarto”,“Itabaiana”,“São Cristóvão”,“Estância”,“Tobias Barreto”,“Simão Dias”],
-SP:[“São Paulo”,“Guarulhos”,“Campinas”,“São Bernardo do Campo”,“Santo André”,“Osasco”,“São José dos Campos”,“Ribeirão Preto”,“Sorocaba”,“Mauá”,“Santos”,“Mogi das Cruzes”,“São José do Rio Preto”,“Diadema”,“Jundiaí”,“Piracicaba”,“Carapicuíba”,“Bauru”,“Itaquaquecetuba”,“São Vicente”,“Franca”,“Guarujá”,“Taubaté”,“Praia Grande”,“Limeira”,“Suzano”,“Taboão da Serra”,“Sumaré”,“Barueri”,“Embu das Artes”,“Marília”,“São Carlos”,“Americana”,“Araraquara”,“Indaiatuba”,“Presidente Prudente”,“Araçatuba”,“Jacareí”,“Hortolândia”,“Botucatu”,“Itu”,“Catanduva”,“Sertãozinho”,“Bragança Paulista”,“Ourinhos”,“Fernandópolis”,“Araras”,“Bebedouro”,“Votuporanga”,“Jaú”],
-TO:[“Palmas”,“Araguaína”,“Gurupi”,“Porto Nacional”,“Paraíso do Tocantins”,“Colinas do Tocantins”,“Guaraí”,“Tocantinópolis”,“Formoso do Araguaia”,“Dianópolis”],
+CE:[“Fortaleza”,“Caucaia”,“Juazeiro do Norte”,“Maracanaú”,“Sobral”,“Crato”],
+DF:[“Brasília”,“Ceilândia”,“Taguatinga”,“Samambaia”,“Planaltina”],
+ES:[“Vitória”,“Serra”,“Vila Velha”,“Cariacica”,“Cachoeiro de Itapemirim”],
+GO:[“Goiânia”,“Aparecida de Goiânia”,“Anápolis”,“Rio Verde”,“Luziânia”,“Jataí”,“Catalão”,“Mineiros”],
+MG:[“Belo Horizonte”,“Uberlândia”,“Contagem”,“Juiz de Fora”,“Betim”,“Montes Claros”,“Uberaba”,“Patos de Minas”],
+MS:[“Campo Grande”,“Dourados”,“Três Lagoas”,“Corumbá”,“Ponta Porã”,“Maracaju”,“Chapadão do Sul”],
+MT:[“Cuiabá”,“Várzea Grande”,“Rondonópolis”,“Sinop”,“Sorriso”,“Lucas do Rio Verde”,“Primavera do Leste”,“Campo Verde”,“Sapezal”,“Campo Novo do Parecis”],
+PA:[“Belém”,“Ananindeua”,“Santarém”,“Marabá”,“Parauapebas”,“Castanhal”,“Altamira”,“Redenção”,“Tucuruí”],
+PB:[“João Pessoa”,“Campina Grande”,“Santa Rita”,“Patos”,“Bayeux”,“Sousa”],
+PE:[“Recife”,“Caruaru”,“Olinda”,“Petrolina”,“Paulista”,“Jaboatão dos Guararapes”,“Garanhuns”],
+PR:[“Curitiba”,“Londrina”,“Maringá”,“Ponta Grossa”,“Cascavel”,“Foz do Iguaçu”,“Guarapuava”,“Toledo”,“Apucarana”],
+RJ:[“Rio de Janeiro”,“São Gonçalo”,“Duque de Caxias”,“Nova Iguaçu”,“Niterói”,“Campos dos Goytacazes”,“Petrópolis”],
+RN:[“Natal”,“Mossoró”,“Parnamirim”,“São Gonçalo do Amarante”,“Caicó”],
+RO:[“Porto Velho”,“Ji-Paraná”,“Ariquemes”,“Vilhena”,“Cacoal”],
+RR:[“Boa Vista”,“Rorainópolis”,“Caracaraí”],
+RS:[“Porto Alegre”,“Caxias do Sul”,“Pelotas”,“Canoas”,“Santa Maria”,“Passo Fundo”,“Uruguaiana”,“Santa Cruz do Sul”,“Bento Gonçalves”,“Erechim”],
+SC:[“Florianópolis”,“Joinville”,“Blumenau”,“São José”,“Chapecó”,“Criciúma”,“Itajaí”,“Lages”,“Jaraguá do Sul”],
+SE:[“Aracaju”,“Nossa Senhora do Socorro”,“Lagarto”,“Itabaiana”,“São Cristóvão”],
+SP:[“São Paulo”,“Guarulhos”,“Campinas”,“São Bernardo do Campo”,“Santo André”,“Osasco”,“São José dos Campos”,“Ribeirão Preto”,“Sorocaba”,“Santos”,“Bauru”,“Franca”,“Presidente Prudente”,“Araçatuba”,“Marília”,“São Carlos”,“Araraquara”],
 };
 
 function CitySearch({ estado, value, onChange }) {
@@ -149,8 +152,8 @@ const CULTURAS = [
 { key: “outra”, label: value.outra_nome || “Outra” },
 ];
 return (
-<div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-<div className="text-green-500 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-1">
+<div className="bg-[#f5f0e8] border border-[#ddd8cc] rounded-xl p-3">
+<div className="text-[#4a8a24] text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-1">
 <span>{icon}</span> {title}
 </div>
 <div className="grid grid-cols-2 gap-2">
@@ -162,7 +165,7 @@ value={value.outra_nome || “”}
 onChange={e => onChange({ …value, outra_nome: e.target.value })} />
 )}
 <div className="flex items-center gap-1">
-<span className="text-gray-500 text-xs w-14 shrink-0">{c.label}</span>
+<span className="text-[#5a5a42] text-xs w-14 shrink-0">{c.label}</span>
 <input type=“number” className={INP + “ text-xs py-1”} placeholder=“ha”
 value={value[c.key] || “”}
 onChange={e => onChange({ …value, [c.key]: e.target.value })} />
@@ -170,7 +173,7 @@ onChange={e => onChange({ …value, [c.key]: e.target.value })} />
 </div>
 ))}
 </div>
-<div className="text-right text-xs text-green-500 mt-2 font-bold">
+<div className="text-right text-xs text-[#4a8a24] mt-2 font-bold">
 Total: {totalCultura(value).toLocaleString(“pt-BR”)} ha
 </div>
 </div>
@@ -181,7 +184,7 @@ Total: {totalCultura(value).toLocaleString(“pt-BR”)} ha
 function Toast({ msg }) {
 if (!msg) return null;
 return (
-<div className="fixed top-4 right-4 bg-green-600 text-black px-4 py-2 rounded-xl text-sm font-black z-50 shadow-xl animate-bounce">
+<div className="fixed top-4 right-4 bg-[#3a7a1a] text-black px-4 py-2 rounded-xl text-sm font-black z-50 shadow-xl animate-bounce">
 {msg}
 </div>
 );
@@ -208,7 +211,7 @@ return (
 <div>4. Aguarde ~2 min o projeto inicializar</div>
 <div>5. Vá em <span className="text-yellow-400">Settings → API</span> → copie “Project URL” e “anon public key”</div>
 <div>6. No menu lateral clique em <span className="text-yellow-400">SQL Editor</span> → cole e execute o SQL abaixo:</div>
-<pre className="bg-[#0a0a00] text-green-400 rounded p-3 mt-2 overflow-x-auto text-xs">{CREATE TABLE fazendas ( id uuid DEFAULT gen_random_uuid() PRIMARY KEY, created_at timestamptz DEFAULT now(), cliente text, fazenda text, municipio text, estado text, status text, area_total text, ano_safra text, lat text, lng text, safra1_seq jsonb, safra1_irr jsonb, safra2_seq jsonb, safra2_irr jsonb, obs text ); ALTER TABLE fazendas ENABLE ROW LEVEL SECURITY; CREATE POLICY "public_all" ON fazendas FOR ALL USING (true) WITH CHECK (true);}</pre>
+<pre className="bg-[#0a0a00] text-green-400 rounded p-3 mt-2 overflow-x-auto text-xs">{CREATE TABLE fazendas ( id uuid DEFAULT gen_random_uuid() PRIMARY KEY, created_at timestamptz DEFAULT now(), cliente text, fazenda text, municipio text, estado text, status text, area_total text, ano_safra text, telefone text, email text, gerente text, consultor text, lat text, lng text, safra1_seq jsonb, safra1_irr jsonb, safra2_seq jsonb, safra2_irr jsonb, obs text ); ALTER TABLE fazendas ENABLE ROW LEVEL SECURITY; CREATE POLICY "public_all" ON fazendas FOR ALL USING (true) WITH CHECK (true);}</pre>
 <div className="mt-2">7. Cole a URL e a Key no topo do código (SUPABASE_URL e SUPABASE_KEY)</div>
 <div className="text-green-400 font-bold mt-2">✓ Pronto! Dados permanentes e compartilhados entre toda a equipe.</div>
 </div>
@@ -439,7 +442,7 @@ safra1_irr: { …emptyCultura(), …(f.safra1_irr || {}) },
 safra2_seq: { …emptyCultura(), …(f.safra2_seq || {}) },
 safra2_irr: { …emptyCultura(), …(f.safra2_irr || {}) },
 });
-setEditId(f.id); setTab(1);
+setEditId(f.id); setTab(0);
 };
 
 const saveFarm = async () => {
@@ -514,7 +517,7 @@ const ctx = farms.length
 2ª Safra irr: S${f.safra2_irr?.soja||0}/M${f.safra2_irr?.milho||0}ha.
 ).join(”\n”)
 : “Nenhuma fazenda cadastrada.”;
-const res = await fetch(“https://api.anthropic.com/v1/messages”, {
+const res = await fetch(”/api/ai”, {
 method: “POST”,
 headers: { “Content-Type”: “application/json” },
 body: JSON.stringify({
@@ -566,11 +569,11 @@ URL.revokeObjectURL(url);
 showToast(“Relatorio exportado!”);
 };
 
-const TABS = [“📋 Cadastro”, “🗂️ Fazendas”, “📊 Análise”, “🗺️ Mapa”, “🤖 IA”];
+const TABS = [“👤 Clientes”, “🗂️ Fazendas”, “📊 Análise”, “🗺️ Mapa”, “🤖 IA”];
 
 if (loading) return (
-<div className="min-h-screen bg-white flex items-center justify-center">
-<div className="text-center text-green-600">
+<div className="min-h-screen bg-[#faf7f2] flex items-center justify-center">
+<div className="text-center text-[#3a7a1a]">
 <div className=“text-4xl animate-spin mb-3” style={{fontFamily:“monospace”}}>⟳</div>
 <div className="text-sm tracking-widest">Carregando AGRO·MAP…</div>
 </div>
@@ -578,9 +581,9 @@ if (loading) return (
 );
 
 return (
-<div className=“min-h-screen bg-white text-gray-800” style={{ fontFamily: “‘Courier New’, monospace” }}>
+<div className=“min-h-screen bg-[#f2ede4] text-[#1a1a14]” style={{ fontFamily: “‘Courier New’, monospace” }}>
 {/* Header */}
-<div className="border-b border-gray-200 bg-white sticky top-0 z-30 shadow-sm">
+<div className="border-b border-[#ddd8cc] bg-[#faf7f2] sticky top-0 z-30 shadow-[0_1px_4px_rgba(0,0,0,0.08)]">
 <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
 <div className="flex items-center gap-3">
 {/* Logo circular com 4 culturas */}
@@ -650,8 +653,8 @@ return (
           <line x1="2" y1="22" x2="42" y2="22" stroke="#1e3d14" strokeWidth="0.5" opacity="0.6"/>
         </svg>
         <div>
-          <div className="text-green-600 font-black tracking-widest text-lg leading-none">AGRO·MAP</div>
-          <div className="text-gray-400 text-xs tracking-wider flex items-center gap-2">
+          <div className="text-[#3a7a1a] font-black tracking-widest text-lg leading-none">AGRO·MAP</div>
+          <div className="text-[#8a8a6a] text-xs tracking-wider flex items-center gap-2">
             v3.0 · {CONFIGURED ? "☁️ Supabase" : "💾 Local"}
             {!online && <span className="text-yellow-500 font-bold">· 📴 Offline</span>}
             {online && syncing && <span className="text-blue-400 font-bold">· 🔄 Sincronizando...</span>}
@@ -660,19 +663,19 @@ return (
                 · ⏳ {pendingCount} pendente(s) — toque para sincronizar
               </button>
             )}
-            {online && !syncing && pendingCount === 0 && CONFIGURED && <span className="text-green-500">· ✅ Sincronizado</span>}
+            {online && !syncing && pendingCount === 0 && CONFIGURED && <span className="text-[#4a8a24]">· ✅ Sincronizado</span>}
           </div>
         </div>
       </div>
-      <div className="text-right text-xs text-gray-500">
-        <div className="text-green-600 font-bold">{farms.length} fazenda(s)</div>
+      <div className="text-right text-xs text-[#5a5a42]">
+        <div className="text-[#3a7a1a] font-bold">{farms.length} fazenda(s)</div>
         <div>{totalArea.toLocaleString("pt-BR")} ha</div>
       </div>
     </div>
     <div className="max-w-5xl mx-auto px-4 flex gap-0.5 overflow-x-auto">
       {TABS.map((t, i) => (
         <button key={i} onClick={() => { if (i === 0) startNew(); else setTab(i); }}
-          className={`px-4 py-2 text-xs font-bold rounded-t-lg whitespace-nowrap transition-all border-t border-x flex-shrink-0 ${tab === i ? "bg-gray-100 border-gray-200 text-green-600" : "border-transparent text-gray-500 hover:text-green-600"}`}>
+          className={`px-4 py-2 text-xs font-bold rounded-t-lg whitespace-nowrap transition-all border-t border-x flex-shrink-0 ${tab === i ? "bg-[#ede8df] border-[#ddd8cc] text-[#3a7a1a]" : "border-transparent text-[#5a5a42] hover:text-[#3a7a1a]"}`}>
           {t}
         </button>
       ))}
@@ -693,17 +696,17 @@ return (
             <option>Todos</option>
             {STATUSES.map(s => <option key={s}>{s}</option>)}
           </select>
-          <button onClick={startNew} className="bg-green-600 text-black font-black px-4 py-2 rounded-lg text-xs hover:bg-green-500 transition-colors ml-auto">
+          <button onClick={startNew} className="bg-[#3a7a1a] text-black font-black px-4 py-2 rounded-lg text-xs hover:bg-[#4a8a24] transition-colors ml-auto">
             + Nova Fazenda
           </button>
         </div>
-        <div className="text-gray-400 text-xs">{filtered.length} resultado(s)</div>
+        <div className="text-[#8a8a6a] text-xs">{filtered.length} resultado(s)</div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 border-gray-300">
+          <div className="text-center py-16 border-[#ccc8bc]">
             <div className="text-5xl mb-3">🌱</div>
             <div>Nenhuma fazenda encontrada.</div>
-            <button onClick={startNew} className="mt-3 text-green-600 text-xs underline">Cadastrar primeira fazenda</button>
+            <button onClick={startNew} className="mt-3 text-[#3a7a1a] text-xs underline">Cadastrar primeira fazenda</button>
           </div>
         )}
 
@@ -715,35 +718,35 @@ return (
               <div className="p-4">
                 <div className="flex justify-between items-start gap-2">
                   <div className="min-w-0">
-                    <div className="text-green-600 font-black truncate">{f.fazenda}</div>
-                    <div className="text-gray-500 text-xs">{f.cliente} · {f.municipio}/{f.estado}</div>
+                    <div className="text-[#3a7a1a] font-black truncate">{f.fazenda}</div>
+                    <div className="text-[#5a5a42] text-xs">{f.cliente} · {f.municipio}/{f.estado}</div>
                     {f.lat && <div className="text-[#2a3a1a] text-xs mt-0.5">📍 {f.lat}, {f.lng}</div>}
                   </div>
                   <div className="flex gap-1.5 items-center shrink-0 flex-wrap justify-end">
-                    <span className={`text-xs px-2 py-0.5 rounded-full border ${f.status === "Ativo" ? "border-[#6ab030] text-green-600" : f.status === "Prospecto" ? "border-yellow-600 text-yellow-600" : "border-gray-200 border-gray-300"}`}>{f.status}</span>
-                    {f.ano_safra && <span className="text-xs px-2 py-0.5 rounded-full border border-green-300 text-green-500">🌾 {f.ano_safra}</span>}
+                    <span className={`text-xs px-2 py-0.5 rounded-full border ${f.status === "Ativo" ? "border-[#6ab030] text-[#3a7a1a]" : f.status === "Prospecto" ? "border-yellow-600 text-yellow-600" : "border-[#ddd8cc] border-[#ccc8bc]"}`}>{f.status}</span>
+                    {f.ano_safra && <span className="text-xs px-2 py-0.5 rounded-full border border-[#a8c878] text-[#4a8a24]">🌾 {f.ano_safra}</span>}
                   {f._pending && <span className="text-xs px-2 py-0.5 rounded-full border border-yellow-700 text-yellow-500 animate-pulse">⏳ Pendente</span>}
-                    <button onClick={() => setExpandedId(expanded ? null : f.id)} className="text-gray-500 hover:text-green-600 text-xs px-2 py-1 border border-gray-200 rounded-lg transition-colors">{expanded ? "▲" : "▼"}</button>
-                    <button onClick={() => startEdit(f)} className="text-gray-500 hover:text-green-600 text-xs px-2 py-1 border border-gray-200 rounded-lg transition-colors">✏️</button>
+                    <button onClick={() => setExpandedId(expanded ? null : f.id)} className="text-[#5a5a42] hover:text-[#3a7a1a] text-xs px-2 py-1 border border-[#ddd8cc] rounded-lg transition-colors">{expanded ? "▲" : "▼"}</button>
+                    <button onClick={() => startEdit(f)} className="text-[#5a5a42] hover:text-[#3a7a1a] text-xs px-2 py-1 border border-[#ddd8cc] rounded-lg transition-colors">✏️</button>
                     <button onClick={() => deleteFarm(f.id)} className="text-[#2a1a1a] hover:text-red-400 text-xs px-2 py-1 border border-[#1a0a0a] rounded-lg transition-colors">✕</button>
                   </div>
                 </div>
 
                 <div className="flex gap-2 mt-3 flex-wrap text-xs">
-                  <span className="bg-gray-100 border border-gray-200 rounded-lg px-2 py-1">
-                    Área Total: <span className="text-green-600 font-bold">{fmt(f.area_total)} ha</span>
+                  <span className="bg-[#ede8df] border border-[#ddd8cc] rounded-lg px-2 py-1">
+                    Área Total: <span className="text-[#3a7a1a] font-bold">{fmt(f.area_total)} ha</span>
                   </span>
-                  <span className="bg-gray-100 border border-gray-200 rounded-lg px-2 py-1">
-                    Plantado: <span className="text-green-600 font-bold">{areaTot.toLocaleString("pt-BR")} ha</span>
+                  <span className="bg-[#ede8df] border border-[#ddd8cc] rounded-lg px-2 py-1">
+                    Plantado: <span className="text-[#3a7a1a] font-bold">{areaTot.toLocaleString("pt-BR")} ha</span>
                   </span>
-                  <span className="bg-gray-100 border border-gray-200 rounded-lg px-2 py-1">
-                    Irrigado: <span className="text-green-600 font-bold">{(totalCultura(f.safra1_irr) + totalCultura(f.safra2_irr)).toLocaleString("pt-BR")} ha</span>
+                  <span className="bg-[#ede8df] border border-[#ddd8cc] rounded-lg px-2 py-1">
+                    Irrigado: <span className="text-[#3a7a1a] font-bold">{(totalCultura(f.safra1_irr) + totalCultura(f.safra2_irr)).toLocaleString("pt-BR")} ha</span>
                   </span>
                 </div>
               </div>
 
               {expanded && (
-                <div className="border-t border-gray-200 bg-white px-4 py-4 space-y-3">
+                <div className="border-t border-[#ddd8cc] bg-[#faf7f2] px-4 py-4 space-y-3">
                   {[
                     ["1ª Safra · Sequeiro", f.safra1_seq, "🌤️"],
                     ["1ª Safra · Irrigado", f.safra1_irr, "💧"],
@@ -753,16 +756,16 @@ return (
                     if (!data || totalCultura(data) === 0) return null;
                     return (
                       <div key={title} className="text-xs">
-                        <div className="text-green-500 font-bold mb-1">{icon} {title}</div>
+                        <div className="text-[#4a8a24] font-bold mb-1">{icon} {title}</div>
                         <div className="flex gap-2 flex-wrap">
                           {[["Soja", data.soja], ["Sorgo", data.sorgo], ["Milho", data.milho], ["Algodão", data.algodao], [data.outra_nome || "Outra", data.outra]].map(([l, v]) =>
-                            v ? <span key={l} className="bg-gray-100 border border-gray-200 rounded px-2 py-0.5">{l}: <span className="text-green-600 font-bold">{fmt(v)} ha</span></span> : null
+                            v ? <span key={l} className="bg-[#ede8df] border border-[#ddd8cc] rounded px-2 py-0.5">{l}: <span className="text-[#3a7a1a] font-bold">{fmt(v)} ha</span></span> : null
                           )}
                         </div>
                       </div>
                     );
                   })}
-                  {f.obs && <div className="text-gray-500 text-xs italic border-t border-gray-200 pt-2">"{f.obs}"</div>}
+                  {f.obs && <div className="text-[#5a5a42] text-xs italic border-t border-[#ddd8cc] pt-2">"{f.obs}"</div>}
                 </div>
               )}
             </div>
@@ -775,12 +778,12 @@ return (
     {tab === 0 && form && (
       <div className="space-y-4">
         <div className={CARD + " p-5"}>
-          <div className="text-green-600 font-black text-sm uppercase tracking-widest mb-4">
+          <div className="text-[#3a7a1a] font-black text-sm uppercase tracking-widest mb-4">
             {editId ? "✏️ Editar Fazenda" : "➕ Nova Fazenda"}
           </div>
 
           {/* Dados do cliente */}
-          <div className="text-gray-500 text-xs uppercase tracking-widest font-bold mb-3">▸ Dados do Cliente</div>
+          <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-3">▸ Dados do Cliente</div>
           <div className="grid grid-cols-2 gap-3 mb-4">
             <Fld label="Cliente *" col="col-span-1"><input className={INP} placeholder="Nome do cliente" value={form.cliente} onChange={e => setForm(f => ({ ...f, cliente: e.target.value }))} /></Fld>
             <Fld label="Status" col="col-span-1">
@@ -798,7 +801,7 @@ return (
           </div>
 
           {/* Dados da fazenda */}
-          <div className="text-gray-500 text-xs uppercase tracking-widest font-bold mb-3 border-t border-gray-200 pt-4">▸ Dados da Fazenda</div>
+          <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-3 border-t border-[#ddd8cc] pt-4">▸ Dados da Fazenda</div>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <Fld label="Fazenda *" col="col-span-2 md:col-span-1"><input className={INP} placeholder="Nome da fazenda" value={form.fazenda} onChange={e => setForm(f => ({ ...f, fazenda: e.target.value }))} /></Fld>
             <Fld label="Área Total (ha)" col="col-span-2 md:col-span-1"><input type="number" className={INP} placeholder="0" value={form.area_total} onChange={e => setForm(f => ({ ...f, area_total: e.target.value }))} /></Fld>
@@ -814,13 +817,13 @@ return (
           </div>
 
           {/* Geolocalização */}
-          <div className="border border-gray-200 rounded-xl p-3 mb-4">
-            <div className="text-gray-500 text-xs uppercase tracking-widest font-bold mb-2">📍 Geolocalização</div>
+          <div className="border border-[#ddd8cc] rounded-xl p-3 mb-4">
+            <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-2">📍 Geolocalização</div>
             <div className="flex gap-2 items-end">
               <Fld label="Latitude" col="flex-1"><input className={INP} placeholder="Ex: -15.123456" value={form.lat} onChange={e => setForm(f => ({ ...f, lat: e.target.value }))} /></Fld>
               <Fld label="Longitude" col="flex-1"><input className={INP} placeholder="Ex: -49.654321" value={form.lng} onChange={e => setForm(f => ({ ...f, lng: e.target.value }))} /></Fld>
               <button onClick={getGeo} disabled={geoLoading}
-                className="mb-0.5 bg-[#1e3d14] hover:bg-[#2a5a1a] text-green-600 font-bold px-3 py-2 rounded-lg text-xs transition-colors disabled:opacity-50 whitespace-nowrap">
+                className="mb-0.5 bg-[#1e3d14] hover:bg-[#2a5a1a] text-[#3a7a1a] font-bold px-3 py-2 rounded-lg text-xs transition-colors disabled:opacity-50 whitespace-nowrap">
                 {geoLoading ? "⟳" : "📍 GPS"}
               </button>
             </div>
@@ -831,8 +834,8 @@ return (
             { label: "🌾 Primeira Safra", seqKey: "safra1_seq", irrKey: "safra1_irr", safra: 1 },
             { label: "🌿 Segunda Safra (Safrinha)", seqKey: "safra2_seq", irrKey: "safra2_irr", safra: 2 },
           ].map(({ label, seqKey, irrKey, safra }) => (
-            <div key={label} className="border border-gray-200 rounded-xl p-4 mb-4">
-              <div className="text-green-600 text-xs font-black uppercase tracking-widest mb-3">{label}</div>
+            <div key={label} className="border border-[#ddd8cc] rounded-xl p-4 mb-4">
+              <div className="text-[#3a7a1a] text-xs font-black uppercase tracking-widest mb-3">{label}</div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <CulturaBlock title="Área Sequeiro" icon="🌤️" value={form[seqKey]} onChange={v => setForm(f => ({ ...f, [seqKey]: v }))} safra={safra} />
                 <CulturaBlock title="Área Irrigada" icon="💧" value={form[irrKey]} onChange={v => setForm(f => ({ ...f, [irrKey]: v }))} safra={safra} />
@@ -846,10 +849,10 @@ return (
           </Fld>
 
           <div className="flex gap-3 mt-4">
-            <button onClick={saveFarm} className="bg-green-600 text-black font-black px-6 py-2.5 rounded-xl text-sm hover:bg-green-500 transition-colors">
+            <button onClick={saveFarm} className="bg-[#3a7a1a] text-black font-black px-6 py-2.5 rounded-xl text-sm hover:bg-[#4a8a24] transition-colors">
               {editId ? "✓ Salvar" : "+ Cadastrar"}
             </button>
-            <button onClick={() => { setForm(null); setEditId(null); setTab(1); }} className="border border-gray-200 text-gray-500 px-4 py-2.5 rounded-xl text-sm hover:text-green-600 transition-colors">
+            <button onClick={() => { setForm(null); setEditId(null); setTab(1); }} className="border border-[#ddd8cc] text-[#5a5a42] px-4 py-2.5 rounded-xl text-sm hover:text-[#3a7a1a] transition-colors">
               Cancelar
             </button>
           </div>
@@ -863,7 +866,7 @@ return (
         {/* Export button */}
         <div className="flex justify-end">
           <button onClick={exportExcel}
-            className="flex items-center gap-2 bg-green-50 hover:bg-green-100 border border-[#2a5a14] text-green-600 font-bold px-4 py-2 rounded-xl text-xs transition-colors">
+            className="flex items-center gap-2 bg-[#f0f5e8] hover:bg-[#e8f0d8] border border-[#2a5a14] text-[#3a7a1a] font-bold px-4 py-2 rounded-xl text-xs transition-colors">
             📊 Exportar Excel
           </button>
         </div>
@@ -875,21 +878,21 @@ return (
             ["Ativos", farms.filter(f => f.status === "Ativo").length],
           ].map(([l, v]) => (
             <div key={l} className={CARD + " p-4 text-center"}>
-              <div className="text-gray-500 text-xs uppercase mb-1">{l}</div>
-              <div className="text-green-600 text-xl font-black">{v}</div>
+              <div className="text-[#5a5a42] text-xs uppercase mb-1">{l}</div>
+              <div className="text-[#3a7a1a] text-xl font-black">{v}</div>
             </div>
           ))}
         </div>
 
         <div className={CARD + " p-5"}>
-          <div className="text-green-600 text-xs uppercase tracking-widest mb-4 font-black">◆ Área Total por Cultura</div>
+          <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-4 font-black">◆ Área Total por Cultura</div>
           {culturaTotals.map(c => (
             <div key={c.name} className="mb-3">
               <div className="flex justify-between text-xs mb-1">
                 <span>{c.name}</span>
-                <span className="text-green-600 font-bold">{c.total.toLocaleString("pt-BR")} ha</span>
+                <span className="text-[#3a7a1a] font-bold">{c.total.toLocaleString("pt-BR")} ha</span>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-[#ede8df] rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-700"
                   style={{ width: `${(c.total / maxC) * 100}%` }} />
               </div>
@@ -899,26 +902,26 @@ return (
 
         <div className="grid grid-cols-2 gap-3">
           <div className={CARD + " p-4"}>
-            <div className="text-green-600 text-xs uppercase tracking-widest mb-3 font-black">💧 Irrigado vs Sequeiro</div>
+            <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">💧 Irrigado vs Sequeiro</div>
             {[["Irrigado", totalIrrig, "#6ab030"], ["Sequeiro", totalSeq, "#3a7a1a"]].map(([l, v, c]) => (
               <div key={l} className="mb-2">
                 <div className="flex justify-between text-xs mb-1">
                   <span>{l}</span><span style={{ color: c }} className="font-bold">{v.toLocaleString("pt-BR")} ha</span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-[#ede8df] rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${(v / (totalIrrig + totalSeq || 1)) * 100}%`, backgroundColor: c }} />
                 </div>
               </div>
             ))}
           </div>
           <div className={CARD + " p-4"}>
-            <div className="text-green-600 text-xs uppercase tracking-widest mb-3 font-black">📊 Por Status</div>
+            <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">📊 Por Status</div>
             {STATUSES.map(s => {
               const n = farms.filter(f => f.status === s).length;
               return (
                 <div key={s} className="flex justify-between items-center text-xs mb-2">
                   <span>{s}</span>
-                  <span className="text-green-600 font-bold bg-gray-100 px-2 py-0.5 rounded">{n}</span>
+                  <span className="text-[#3a7a1a] font-bold bg-[#ede8df] px-2 py-0.5 rounded">{n}</span>
                 </div>
               );
             })}
@@ -926,12 +929,12 @@ return (
         </div>
 
         <div className={CARD + " p-4"}>
-          <div className="text-green-600 text-xs uppercase tracking-widest mb-3 font-black">🏆 Top Fazendas por Área Plantada</div>
+          <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">🏆 Top Fazendas por Área Plantada</div>
           {[...farms].sort((a, b) => totalFazenda(b) - totalFazenda(a)).slice(0, 5).map((f, i) => (
             <div key={f.id} className="flex items-center gap-3 text-xs mb-2">
-              <span className="text-gray-500 w-4">{i + 1}</span>
-              <div className="flex-1 truncate"><span className="text-gray-800">{f.fazenda}</span> <span className="text-gray-500">{f.cliente}</span></div>
-              <span className="text-green-600 font-bold shrink-0">{totalFazenda(f).toLocaleString("pt-BR")} ha</span>
+              <span className="text-[#5a5a42] w-4">{i + 1}</span>
+              <div className="flex-1 truncate"><span className="text-[#1a1a14]">{f.fazenda}</span> <span className="text-[#5a5a42]">{f.cliente}</span></div>
+              <span className="text-[#3a7a1a] font-bold shrink-0">{totalFazenda(f).toLocaleString("pt-BR")} ha</span>
             </div>
           ))}
         </div>
@@ -944,17 +947,17 @@ return (
         {/* Legend */}
         <div className="flex gap-3 flex-wrap items-center">
           {[["Ativo","#16a34a"],["Prospecto","#d97706"],["Inativo","#9ca3af"]].map(([s,c]) => (
-            <div key={s} className="flex items-center gap-1.5 text-xs text-gray-600">
+            <div key={s} className="flex items-center gap-1.5 text-xs text-[#3a3a2a]">
               <div style={{background:c,width:"10px",height:"10px",borderRadius:"50%",border:"1.5px solid white",boxShadow:"0 1px 3px rgba(0,0,0,0.3)"}}/>
               {s}
             </div>
           ))}
-          <span className="text-xs text-gray-400 ml-auto">{farms.filter(f=>f.lat&&f.lng).length} fazenda(s) com GPS</span>
+          <span className="text-xs text-[#8a8a6a] ml-auto">{farms.filter(f=>f.lat&&f.lng).length} fazenda(s) com GPS</span>
         </div>
         {/* Map container */}
         {!leafletReady ? (
-          <div className="border border-gray-200 rounded-xl bg-gray-50 flex items-center justify-center" style={{height:"420px"}}>
-            <div className="text-center text-gray-400">
+          <div className="border border-[#ddd8cc] rounded-xl bg-[#f5f0e8] flex items-center justify-center" style={{height:"420px"}}>
+            <div className="text-center text-[#8a8a6a]">
               <div className="text-2xl animate-spin mb-2">⟳</div>
               <div className="text-sm">Carregando mapa...</div>
             </div>
@@ -963,7 +966,7 @@ return (
           <div id="agromap-map" style={{height:"420px",borderRadius:"12px",border:"1px solid #e5e7eb",overflow:"hidden"}}/>
         )}
         {farms.filter(f => !f.lat || !f.lng).length > 0 && (
-          <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          <div className="text-xs text-[#8a5a10] bg-[#fdf5e4] border border-[#e8d0a0] rounded-lg px-3 py-2">
             ⚠️ {farms.filter(f => !f.lat || !f.lng).length} fazenda(s) sem GPS — use o botão 📍 GPS no cadastro para adicionar localização.
           </div>
         )}
@@ -973,8 +976,8 @@ return (
     {tab === 4 && (
       <div className="space-y-4">
         <div className={CARD + " p-5"}>
-          <div className="text-green-600 font-black text-sm mb-1">🤖 IA Consultora Agrícola</div>
-          <div className="text-gray-500 text-xs mb-4">Análise inteligente baseada nos dados reais da sua carteira.</div>
+          <div className="text-[#3a7a1a] font-black text-sm mb-1">🤖 IA Consultora Agrícola</div>
+          <div className="text-[#5a5a42] text-xs mb-4">Análise inteligente baseada nos dados reais da sua carteira.</div>
           <div className="grid grid-cols-1 gap-2 mb-4 md:grid-cols-2">
             {[
               "Quais clientes têm maior área disponível para expandir?",
@@ -985,7 +988,7 @@ return (
               "Estratégias para aumentar participação em algodão",
             ].map(s => (
               <button key={s} onClick={() => setAiPrompt(s)}
-                className="text-left text-xs border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-green-300 hover:text-green-600 transition-colors">
+                className="text-left text-xs border border-[#ddd8cc] rounded-lg px-3 py-2 text-[#5a5a42] hover:border-[#a8c878] hover:text-[#3a7a1a] transition-colors">
                 {s}
               </button>
             ))}
@@ -993,14 +996,14 @@ return (
           <textarea className={INP + " resize-none mb-3"} rows={3} placeholder="Sua pergunta ou análise..."
             value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
           <button onClick={runAI} disabled={aiLoading || !aiPrompt.trim()}
-            className="bg-green-600 text-black font-black px-6 py-2.5 rounded-xl text-sm hover:bg-green-500 transition-colors disabled:opacity-40 flex items-center gap-2">
+            className="bg-[#3a7a1a] text-black font-black px-6 py-2.5 rounded-xl text-sm hover:bg-[#4a8a24] transition-colors disabled:opacity-40 flex items-center gap-2">
             {aiLoading ? <><span className="animate-spin inline-block">⟳</span> Analisando...</> : "🤖 Consultar IA"}
           </button>
         </div>
         {aiResult && (
-          <div className={CARD + " p-5 border-green-300"}>
-            <div className="text-green-600 text-xs uppercase tracking-widest mb-3 font-black">◆ Análise</div>
-            <div className="text-gray-800 text-sm whitespace-pre-wrap leading-relaxed">{aiResult}</div>
+          <div className={CARD + " p-5 border-[#a8c878]"}>
+            <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">◆ Análise</div>
+            <div className="text-[#1a1a14] text-sm whitespace-pre-wrap leading-relaxed">{aiResult}</div>
           </div>
         )}
       </div>
@@ -1008,7 +1011,7 @@ return (
   </div>
 
   {/* PWA install hint */}
-  <div className="fixed bottom-4 right-4 border-gray-300 text-xs text-right pointer-events-none">
+  <div className="fixed bottom-4 right-4 border-[#ccc8bc] text-xs text-right pointer-events-none">
     <div>📱 Para instalar como app:</div>
     <div>iOS: Compartilhar → Tela Inicial</div>
     <div>Android: Menu → Instalar app</div>
@@ -1017,3 +1020,4 @@ return (
 
 
 );
+}
