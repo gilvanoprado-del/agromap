@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// âš™ï¸  CONFIGURAÃ‡ÃƒO SUPABASE
-// ApÃ³s criar seu projeto em supabase.com,
+// ─────────────────────────────────────────────
+// ⚙️  CONFIGURAÇÃO SUPABASE
+// Após criar seu projeto em supabase.com,
 // substitua os valores abaixo:
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────
 const SUPABASE_URL = "https://udtggjrincredltdaecp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkdGdnanJpbmNyZWRsdGRhZWNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjI4NzYsImV4cCI6MjA5MTkzODg3Nn0.Kh0-mlqcYMG7urL7NT7e2tvQBT81lmXM2-qt9rE9EZw";
 
 const CONFIGURED = SUPABASE_URL !== "COLE_SUA_URL_AQUI";
 
-// â”€â”€â”€ Supabase helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Supabase helpers ───────────────────────
 const sb = async (path, options = {}) => {
   const { prefer, method, body } = options;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -36,7 +36,7 @@ const dbInsert = (data) => sb("fazendas", { method: "POST", body: JSON.stringify
 const dbUpdate = (id, data) => sb(`fazendas?id=eq.${id}`, { method: "PATCH", body: JSON.stringify(data), prefer: "return=minimal" });
 const dbDelete = (id) => sb(`fazendas?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" });
 
-// â”€â”€â”€ Local Storage fallback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Local Storage fallback ──────────────────
 const LS_KEY = "agromap_v3";
 const LS_QUEUE = "agromap_queue_v3";
 const lsLoad = () => { try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch { return []; } };
@@ -47,7 +47,7 @@ const queueAdd = (item) => { const q = queueLoad(); queueSave([...q, item]); };
 const queueRemove = (tempId) => { queueSave(queueLoad().filter(i => i.data.id !== tempId)); };
 const isOnline = () => navigator.onLine;
 
-// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Constants ──────────────────────────────
 const STATES = ["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"];
 const STATUSES = ["Ativo", "Prospecto", "Inativo"];
 const SAFRA_LABEL = ["Primeira Safra", "Segunda Safra (Safrinha)"];
@@ -65,12 +65,12 @@ const emptyFazenda = () => ({
   obs: "",
 });
 
-const fmt = (v) => v ? parseFloat(v).toLocaleString("pt-BR") : "â€”";
+const fmt = (v) => v ? parseFloat(v).toLocaleString("pt-BR") : "—";
 const fmtN = (v) => parseFloat(v) || 0;
 const totalCultura = (c) => fmtN(c?.soja) + fmtN(c?.milho) + fmtN(c?.algodao) + fmtN(c?.outra);
 const totalFazenda = (f) => [f.safra1_seq, f.safra1_irr, f.safra2_seq, f.safra2_irr].reduce((s, c) => s + totalCultura(c), 0);
 
-// â”€â”€â”€ Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Styles ──────────────────────────────────
 const INP = "w-full bg-[#faf7f2] border border-[#ddd8cc] rounded-lg px-3 py-2 text-[#1a1a14] placeholder-[#a0987a] focus:outline-none focus:border-[#3a7a1a] focus:ring-1 focus:ring-[#e8f0d8] text-sm transition-colors";
 const LBL = "block text-[#3a7a1a] text-xs font-bold mb-1 uppercase tracking-wider";
 const CARD = "border border-[#ddd8cc] bg-[#faf7f2] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.07)]";
@@ -80,37 +80,37 @@ function Fld({ label, children, col }) {
 }
 
 
-// â”€â”€â”€ Cities by state (main cities, lightweight) â”€â”€â”€â”€â”€â”€
+// ─── Cities by state (main cities, lightweight) ──────
 const CITIES_BY_STATE = {
-  // MATOPIBA completo â€” Portaria MAPA 244/2015
-  MA:["AÃ§ailÃ¢ndia","Afonso Cunha","Alto ParnaÃ­ba","Amarante do MaranhÃ£o","Arari","Avelino Lopes","Bacabal","Balsas","BarÃ£o de GrajaÃº","Barra do Corda","Brejo","Buriti Bravo","Caxias","Chapadinha","CodÃ³","Coelho Neto","Colinas","DavinÃ³polis","Dom Pedro","Duque Bacelar","EsperantinÃ³polis","Estreito","Feira Nova do MaranhÃ£o","Fernando FalcÃ£o","Formosa da Serra Negra","Fortaleza dos Nogueiras","Fortuna","GonÃ§alves Dias","Governador Archer","Governador Edison LobÃ£o","Governador EugÃªnio Barros","GrajaÃº","Guadalupe","Imperatriz","Itaipava do GrajaÃº","JatobÃ¡","JoÃ£o Lisboa","JoselÃ¢ndia","Lago da Pedra","Lago do Junco","Lago dos Rodrigues","Lagoa Grande do MaranhÃ£o","Lajeado Novo","Lima Campos","Loreto","MagalhÃ£es de Almeida","Mata Roma","MatÃµes","MatÃµes do Norte","Milagres do MaranhÃ£o","Mirador","Miranda do Norte","Montes Altos","Nova Colinas","Nova Iorque","Paraibano","Pastos Bons","Pedreiras","PeritorÃ³","Porto Franco","Presidente Dutra","RiachÃ£o","Ribamar Fiquene","SambaÃ­ba","Santa Filomena do MaranhÃ£o","Santo AntÃ´nio dos Lopes","SÃ£o Domingos do AzeitÃ£o","SÃ£o Felix de Balsas","SÃ£o Francisco do BrejÃ£o","SÃ£o Francisco do MaranhÃ£o","SÃ£o JoÃ£o do ParaÃ­so","SÃ£o LuÃ­s Gonzaga do MaranhÃ£o","SÃ£o Pedro dos Crentes","SÃ£o Raimundo das Mangabeiras","SÃ£o Raimundo do Doca Bezerra","SÃ£o Roberto","Senador Alexandre Costa","Senador La Rocque","SÃ­tio Novo","Sucupira do Norte","Sucupira do RiachÃ£o","Tasso Fragoso","Tuntum","Urbano Santos","Vargem Grande","Vila Nova dos MartÃ­rios","VitÃ³ria do Mearim","ZÃ© Doca"],
-  TO:["AguiarnÃ³polis","AlianÃ§a do Tocantins","Almas","Alvorada","AnanÃ¡s","Angico","Aparecida do Rio Negro","Aragominas","Araguacema","AraguaÃ§u","AraguaÃ­na","AraguanÃ£","Araguatins","Arapoema","Arraias","AugustinÃ³polis","Aurora do Tocantins","AxixÃ¡ do Tocantins","BabaÃ§ulÃ¢ndia","Bandeirantes do Tocantins","Barra do Ouro","BarrolÃ¢ndia","Bernardo SayÃ£o","Bom Jesus do Tocantins","BrasilÃ¢ndia do Tocantins","Brejinho de NazarÃ©","Buriti do Tocantins","Cachoeirinha","Campos Lindos","Cariri do Tocantins","CarmolÃ¢ndia","Carrasco Bonito","Caseara","CentenÃ¡rio","Chapada da Natividade","Chapada de Areia","Colinas do Tocantins","ColmÃ©ia","Combinado","ConceiÃ§Ã£o do Tocantins","Couto MagalhÃ£es","CristalÃ¢ndia","CrixÃ¡s do Tocantins","DarcinÃ³polis","DianÃ³polis","DivinÃ³polis do Tocantins","Dois IrmÃ£os do Tocantins","DuerÃ©","Esperantina","FÃ¡tima","FigueirÃ³polis","FiladÃ©lfia","Formoso do Araguaia","Fortaleza do TabocÃ£o","Goianorte","Goiatins","GuaraÃ­","Gurupi","Ipueiras","ItacajÃ¡","Itaguatins","Itapiratins","ItaporÃ£ do Tocantins","JaÃº do Tocantins","Juarina","Lagoa da ConfusÃ£o","Lagoa do Tocantins","Lajeado","Lavandeira","Lizarda","LuzinÃ³polis","MarianÃ³polis do Tocantins","Mateiros","MaurilÃ¢ndia do Tocantins","Miracema do Tocantins","Miranorte","Monte do Carmo","Monte Santo do Tocantins","MuricilÃ¢ndia","Natividade","NazarÃ©","Nova Olinda","Nova RosalÃ¢ndia","Novo Acordo","Novo Alegre","Novo Jardim","Oliveira de FÃ¡tima","Palmas","Palmeirante","PalmeirÃ³polis","ParaÃ­so do Tocantins","ParanÃ£","Pau D'Arco","Pedro Afonso","Peixe","Pequizeiro","Pindorama do Tocantins","PiraquÃª","Pium","Ponte Alta do Bom Jesus","Ponte Alta do Tocantins","Porto Alegre do Tocantins","Porto Nacional","Praia Norte","Presidente Kennedy","Pugmil","RecursolÃ¢ndia","Riachinho","Rio da ConceiÃ§Ã£o","Rio dos Bois","Rio Sono","Sampaio","Santa FÃ© do Araguaia","Santa Maria do Tocantins","Santa Rita do Tocantins","Santa Rosa do Tocantins","Santa Tereza do Tocantins","Santa Terezinha do Tocantins","SÃ£o Bento do Tocantins","SÃ£o FÃ©lix do Tocantins","SÃ£o Miguel do Tocantins","SÃ£o Salvador do Tocantins","SÃ£o SebastiÃ£o do Tocantins","SÃ£o ValÃ©rio","SilvanÃ³polis","SÃ­tio Novo do Tocantins","Sucupira","Taguatinga","Taipas do Tocantins","TalismÃ£","TocantÃ­nia","TocantinÃ³polis","Tupirama","Tupiratins","WanderlÃ¢ndia","XambioÃ¡"],
-  PI:["Alvorada do GurguÃ©ia","Avelino Lopes","Bom Jesus","Baixa Grande do Ribeiro","Barreiras do PiauÃ­","Bonfim do PiauÃ­","Brejo do PiauÃ­","Caracol","Corrente","Cristino Castro","CurimatÃ¡","Currais","Eliseu Martins","Fartura do PiauÃ­","GilbuÃ©s","Guadalupe","JÃºlio Borges","Landri Sales","Manoel EmÃ­dio","Monte Alegre do PiauÃ­","Morro CabeÃ§a no Tempo","Palmeira do PiauÃ­","ParnaguÃ¡","Pavussu","Porto Alegre do PiauÃ­","RedenÃ§Ã£o do GurguÃ©ia","Ribeiro GonÃ§alves","Santa Filomena","Santa Luz","Santa Rosa do PiauÃ­","SÃ£o GonÃ§alo do GurguÃ©ia","SebastiÃ£o Barros","SebastiÃ£o Leal","UruÃ§uÃ­"],
-  BA:["BaianÃ³polis","Barreiras","Bonito","BrejolÃ¢ndia","CanÃ¡polis","Carinhanha","Cocos","Coribe","Correntina","Cotegipe","CristÃ³polis","Feira da Mata","Formosa do Rio Preto","Jaborandi","LuÃ­s Eduardo MagalhÃ£es","MansidÃ£o","RiachÃ£o das Neves","Santa Maria da VitÃ³ria","Santa Rita de CÃ¡ssia","Santana","SÃ£o DesidÃ©rio","Serra do Ramalho","Serra Dourada","Tabocas do Brejo Velho","Wanderley"],
+  // MATOPIBA completo — Portaria MAPA 244/2015
+  MA:["Açailândia","Afonso Cunha","Alto Parnaíba","Amarante do Maranhão","Arari","Avelino Lopes","Bacabal","Balsas","Barão de Grajaú","Barra do Corda","Brejo","Buriti Bravo","Caxias","Chapadinha","Codó","Coelho Neto","Colinas","Davinópolis","Dom Pedro","Duque Bacelar","Esperantinópolis","Estreito","Feira Nova do Maranhão","Fernando Falcão","Formosa da Serra Negra","Fortaleza dos Nogueiras","Fortuna","Gonçalves Dias","Governador Archer","Governador Edison Lobão","Governador Eugênio Barros","Grajaú","Guadalupe","Imperatriz","Itaipava do Grajaú","Jatobá","João Lisboa","Joselândia","Lago da Pedra","Lago do Junco","Lago dos Rodrigues","Lagoa Grande do Maranhão","Lajeado Novo","Lima Campos","Loreto","Magalhães de Almeida","Mata Roma","Matões","Matões do Norte","Milagres do Maranhão","Mirador","Miranda do Norte","Montes Altos","Nova Colinas","Nova Iorque","Paraibano","Pastos Bons","Pedreiras","Peritoró","Porto Franco","Presidente Dutra","Riachão","Ribamar Fiquene","Sambaíba","Santa Filomena do Maranhão","Santo Antônio dos Lopes","São Domingos do Azeitão","São Felix de Balsas","São Francisco do Brejão","São Francisco do Maranhão","São João do Paraíso","São Luís Gonzaga do Maranhão","São Pedro dos Crentes","São Raimundo das Mangabeiras","São Raimundo do Doca Bezerra","São Roberto","Senador Alexandre Costa","Senador La Rocque","Sítio Novo","Sucupira do Norte","Sucupira do Riachão","Tasso Fragoso","Tuntum","Urbano Santos","Vargem Grande","Vila Nova dos Martírios","Vitória do Mearim","Zé Doca"],
+  TO:["Aguiarnópolis","Aliança do Tocantins","Almas","Alvorada","Ananás","Angico","Aparecida do Rio Negro","Aragominas","Araguacema","Araguaçu","Araguaína","Araguanã","Araguatins","Arapoema","Arraias","Augustinópolis","Aurora do Tocantins","Axixá do Tocantins","Babaçulândia","Bandeirantes do Tocantins","Barra do Ouro","Barrolândia","Bernardo Sayão","Bom Jesus do Tocantins","Brasilândia do Tocantins","Brejinho de Nazaré","Buriti do Tocantins","Cachoeirinha","Campos Lindos","Cariri do Tocantins","Carmolândia","Carrasco Bonito","Caseara","Centenário","Chapada da Natividade","Chapada de Areia","Colinas do Tocantins","Colméia","Combinado","Conceição do Tocantins","Couto Magalhães","Cristalândia","Crixás do Tocantins","Darcinópolis","Dianópolis","Divinópolis do Tocantins","Dois Irmãos do Tocantins","Dueré","Esperantina","Fátima","Figueirópolis","Filadélfia","Formoso do Araguaia","Fortaleza do Tabocão","Goianorte","Goiatins","Guaraí","Gurupi","Ipueiras","Itacajá","Itaguatins","Itapiratins","Itaporã do Tocantins","Jaú do Tocantins","Juarina","Lagoa da Confusão","Lagoa do Tocantins","Lajeado","Lavandeira","Lizarda","Luzinópolis","Marianópolis do Tocantins","Mateiros","Maurilândia do Tocantins","Miracema do Tocantins","Miranorte","Monte do Carmo","Monte Santo do Tocantins","Muricilândia","Natividade","Nazaré","Nova Olinda","Nova Rosalândia","Novo Acordo","Novo Alegre","Novo Jardim","Oliveira de Fátima","Palmas","Palmeirante","Palmeirópolis","Paraíso do Tocantins","Paranã","Pau D'Arco","Pedro Afonso","Peixe","Pequizeiro","Pindorama do Tocantins","Piraquê","Pium","Ponte Alta do Bom Jesus","Ponte Alta do Tocantins","Porto Alegre do Tocantins","Porto Nacional","Praia Norte","Presidente Kennedy","Pugmil","Recursolândia","Riachinho","Rio da Conceição","Rio dos Bois","Rio Sono","Sampaio","Santa Fé do Araguaia","Santa Maria do Tocantins","Santa Rita do Tocantins","Santa Rosa do Tocantins","Santa Tereza do Tocantins","Santa Terezinha do Tocantins","São Bento do Tocantins","São Félix do Tocantins","São Miguel do Tocantins","São Salvador do Tocantins","São Sebastião do Tocantins","São Valério","Silvanópolis","Sítio Novo do Tocantins","Sucupira","Taguatinga","Taipas do Tocantins","Talismã","Tocantínia","Tocantinópolis","Tupirama","Tupiratins","Wanderlândia","Xambioá"],
+  PI:["Alvorada do Gurguéia","Avelino Lopes","Bom Jesus","Baixa Grande do Ribeiro","Barreiras do Piauí","Bonfim do Piauí","Brejo do Piauí","Caracol","Corrente","Cristino Castro","Curimatá","Currais","Eliseu Martins","Fartura do Piauí","Gilbués","Guadalupe","Júlio Borges","Landri Sales","Manoel Emídio","Monte Alegre do Piauí","Morro Cabeça no Tempo","Palmeira do Piauí","Parnaguá","Pavussu","Porto Alegre do Piauí","Redenção do Gurguéia","Ribeiro Gonçalves","Santa Filomena","Santa Luz","Santa Rosa do Piauí","São Gonçalo do Gurguéia","Sebastião Barros","Sebastião Leal","Uruçuí"],
+  BA:["Baianópolis","Barreiras","Bonito","Brejolândia","Canápolis","Carinhanha","Cocos","Coribe","Correntina","Cotegipe","Cristópolis","Feira da Mata","Formosa do Rio Preto","Jaborandi","Luís Eduardo Magalhães","Mansidão","Riachão das Neves","Santa Maria da Vitória","Santa Rita de Cássia","Santana","São Desidério","Serra do Ramalho","Serra Dourada","Tabocas do Brejo Velho","Wanderley"],
   // Demais estados mantidos
-  AC:["Rio Branco","Cruzeiro do Sul","Sena Madureira","TarauacÃ¡","FeijÃ³"],
-  AL:["MaceiÃ³","Arapiraca","Palmeira dos Ãndios","Rio Largo","Penedo","UniÃ£o dos Palmares"],
-  AM:["Manaus","Parintins","Itacoatiara","Manacapuru","Coari","TefÃ©"],
-  AP:["MacapÃ¡","Santana","Laranjal do Jari","Oiapoque","MazagÃ£o"],
-  CE:["Fortaleza","Caucaia","Juazeiro do Norte","MaracanaÃº","Sobral","Crato"],
-  DF:["BrasÃ­lia","CeilÃ¢ndia","Taguatinga","Samambaia","Planaltina"],
-  ES:["VitÃ³ria","Serra","Vila Velha","Cariacica","Cachoeiro de Itapemirim"],
-  GO:["GoiÃ¢nia","Aparecida de GoiÃ¢nia","AnÃ¡polis","Rio Verde","LuziÃ¢nia","JataÃ­","CatalÃ£o","Mineiros"],
-  MG:["Belo Horizonte","UberlÃ¢ndia","Contagem","Juiz de Fora","Betim","Montes Claros","Uberaba","Patos de Minas"],
-  MS:["Campo Grande","Dourados","TrÃªs Lagoas","CorumbÃ¡","Ponta PorÃ£","Maracaju","ChapadÃ£o do Sul"],
-  MT:["CuiabÃ¡","VÃ¡rzea Grande","RondonÃ³polis","Sinop","Sorriso","Lucas do Rio Verde","Primavera do Leste","Campo Verde","Sapezal","Campo Novo do Parecis"],
-  PA:["BelÃ©m","Ananindeua","SantarÃ©m","MarabÃ¡","Parauapebas","Castanhal","Altamira","RedenÃ§Ã£o","TucuruÃ­"],
-  PB:["JoÃ£o Pessoa","Campina Grande","Santa Rita","Patos","Bayeux","Sousa"],
-  PE:["Recife","Caruaru","Olinda","Petrolina","Paulista","JaboatÃ£o dos Guararapes","Garanhuns"],
-  PR:["Curitiba","Londrina","MaringÃ¡","Ponta Grossa","Cascavel","Foz do IguaÃ§u","Guarapuava","Toledo","Apucarana"],
-  RJ:["Rio de Janeiro","SÃ£o GonÃ§alo","Duque de Caxias","Nova IguaÃ§u","NiterÃ³i","Campos dos Goytacazes","PetrÃ³polis"],
-  RN:["Natal","MossorÃ³","Parnamirim","SÃ£o GonÃ§alo do Amarante","CaicÃ³"],
-  RO:["Porto Velho","Ji-ParanÃ¡","Ariquemes","Vilhena","Cacoal"],
-  RR:["Boa Vista","RorainÃ³polis","CaracaraÃ­"],
-  RS:["Porto Alegre","Caxias do Sul","Pelotas","Canoas","Santa Maria","Passo Fundo","Uruguaiana","Santa Cruz do Sul","Bento GonÃ§alves","Erechim"],
-  SC:["FlorianÃ³polis","Joinville","Blumenau","SÃ£o JosÃ©","ChapecÃ³","CriciÃºma","ItajaÃ­","Lages","JaraguÃ¡ do Sul"],
-  SE:["Aracaju","Nossa Senhora do Socorro","Lagarto","Itabaiana","SÃ£o CristÃ³vÃ£o"],
-  SP:["SÃ£o Paulo","Guarulhos","Campinas","SÃ£o Bernardo do Campo","Santo AndrÃ©","Osasco","SÃ£o JosÃ© dos Campos","RibeirÃ£o Preto","Sorocaba","Santos","Bauru","Franca","Presidente Prudente","AraÃ§atuba","MarÃ­lia","SÃ£o Carlos","Araraquara"],
+  AC:["Rio Branco","Cruzeiro do Sul","Sena Madureira","Tarauacá","Feijó"],
+  AL:["Maceió","Arapiraca","Palmeira dos Índios","Rio Largo","Penedo","União dos Palmares"],
+  AM:["Manaus","Parintins","Itacoatiara","Manacapuru","Coari","Tefé"],
+  AP:["Macapá","Santana","Laranjal do Jari","Oiapoque","Mazagão"],
+  CE:["Fortaleza","Caucaia","Juazeiro do Norte","Maracanaú","Sobral","Crato"],
+  DF:["Brasília","Ceilândia","Taguatinga","Samambaia","Planaltina"],
+  ES:["Vitória","Serra","Vila Velha","Cariacica","Cachoeiro de Itapemirim"],
+  GO:["Goiânia","Aparecida de Goiânia","Anápolis","Rio Verde","Luziânia","Jataí","Catalão","Mineiros"],
+  MG:["Belo Horizonte","Uberlândia","Contagem","Juiz de Fora","Betim","Montes Claros","Uberaba","Patos de Minas"],
+  MS:["Campo Grande","Dourados","Três Lagoas","Corumbá","Ponta Porã","Maracaju","Chapadão do Sul"],
+  MT:["Cuiabá","Várzea Grande","Rondonópolis","Sinop","Sorriso","Lucas do Rio Verde","Primavera do Leste","Campo Verde","Sapezal","Campo Novo do Parecis"],
+  PA:["Belém","Ananindeua","Santarém","Marabá","Parauapebas","Castanhal","Altamira","Redenção","Tucuruí"],
+  PB:["João Pessoa","Campina Grande","Santa Rita","Patos","Bayeux","Sousa"],
+  PE:["Recife","Caruaru","Olinda","Petrolina","Paulista","Jaboatão dos Guararapes","Garanhuns"],
+  PR:["Curitiba","Londrina","Maringá","Ponta Grossa","Cascavel","Foz do Iguaçu","Guarapuava","Toledo","Apucarana"],
+  RJ:["Rio de Janeiro","São Gonçalo","Duque de Caxias","Nova Iguaçu","Niterói","Campos dos Goytacazes","Petrópolis"],
+  RN:["Natal","Mossoró","Parnamirim","São Gonçalo do Amarante","Caicó"],
+  RO:["Porto Velho","Ji-Paraná","Ariquemes","Vilhena","Cacoal"],
+  RR:["Boa Vista","Rorainópolis","Caracaraí"],
+  RS:["Porto Alegre","Caxias do Sul","Pelotas","Canoas","Santa Maria","Passo Fundo","Uruguaiana","Santa Cruz do Sul","Bento Gonçalves","Erechim"],
+  SC:["Florianópolis","Joinville","Blumenau","São José","Chapecó","Criciúma","Itajaí","Lages","Jaraguá do Sul"],
+  SE:["Aracaju","Nossa Senhora do Socorro","Lagarto","Itabaiana","São Cristóvão"],
+  SP:["São Paulo","Guarulhos","Campinas","São Bernardo do Campo","Santo André","Osasco","São José dos Campos","Ribeirão Preto","Sorocaba","Santos","Bauru","Franca","Presidente Prudente","Araçatuba","Marília","São Carlos","Araraquara"],
 };
 
 function CitySearch({ estado, value, onChange }) {
@@ -149,7 +149,7 @@ function CulturaBlock({ title, icon, value, onChange, safra = 1 }) {
   const CULTURAS = [
     { key: safra === 2 ? "sorgo" : "soja", label: safra === 2 ? "Sorgo" : "Soja" },
     { key: "milho", label: "Milho" },
-    { key: "algodao", label: "AlgodÃ£o" },
+    { key: "algodao", label: "Algodão" },
     { key: "outra", label: value.outra_nome || "Outra" },
   ];
   return (
@@ -181,7 +181,7 @@ function CulturaBlock({ title, icon, value, onChange, safra = 1 }) {
   );
 }
 
-// â”€â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Toast ───────────────────────────────────
 function Toast({ msg }) {
   if (!msg) return null;
   return (
@@ -191,27 +191,27 @@ function Toast({ msg }) {
   );
 }
 
-// â”€â”€â”€ Setup Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Setup Banner ────────────────────────────
 function SetupBanner({ onDismiss }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border border-yellow-700 bg-[#1a1200] rounded-xl p-4 mb-4 text-xs">
       <div className="flex justify-between items-center">
         <div className="text-yellow-400 font-bold flex items-center gap-2">
-          âš ï¸ Modo demonstraÃ§Ã£o â€” dados salvos localmente
+          ⚠️ Modo demonstração — dados salvos localmente
           <button onClick={() => setOpen(!open)} className="underline text-yellow-500">{open ? "Fechar" : "Ver como conectar Supabase"}</button>
         </div>
-        <button onClick={onDismiss} className="text-yellow-700 hover:text-yellow-400">âœ•</button>
+        <button onClick={onDismiss} className="text-yellow-700 hover:text-yellow-400">✕</button>
       </div>
       {open && (
         <div className="mt-3 text-[#a0a070] space-y-1 border-t border-yellow-900 pt-3">
-          <div className="text-yellow-300 font-bold mb-2">ðŸ“‹ Passo a passo â€” Supabase gratuito:</div>
-          <div>1. Acesse <span className="text-yellow-400">supabase.com</span> â†’ clique em "Start your project"</div>
+          <div className="text-yellow-300 font-bold mb-2">📋 Passo a passo — Supabase gratuito:</div>
+          <div>1. Acesse <span className="text-yellow-400">supabase.com</span> → clique em "Start your project"</div>
           <div>2. Crie uma conta gratuita (GitHub ou e-mail)</div>
-          <div>3. Clique em "New Project" â†’ dÃª um nome (ex: agromap) â†’ crie senha â†’ escolha regiÃ£o "South America"</div>
+          <div>3. Clique em "New Project" → dê um nome (ex: agromap) → crie senha → escolha região "South America"</div>
           <div>4. Aguarde ~2 min o projeto inicializar</div>
-          <div>5. VÃ¡ em <span className="text-yellow-400">Settings â†’ API</span> â†’ copie "Project URL" e "anon public key"</div>
-          <div>6. No menu lateral clique em <span className="text-yellow-400">SQL Editor</span> â†’ cole e execute o SQL abaixo:</div>
+          <div>5. Vá em <span className="text-yellow-400">Settings → API</span> → copie "Project URL" e "anon public key"</div>
+          <div>6. No menu lateral clique em <span className="text-yellow-400">SQL Editor</span> → cole e execute o SQL abaixo:</div>
           <pre className="bg-[#0a0a00] text-green-400 rounded p-3 mt-2 overflow-x-auto text-xs">{`CREATE TABLE fazendas (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at timestamptz DEFAULT now(),
@@ -224,15 +224,15 @@ function SetupBanner({ onDismiss }) {
 );
 ALTER TABLE fazendas ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public_all" ON fazendas FOR ALL USING (true) WITH CHECK (true);`}</pre>
-          <div className="mt-2">7. Cole a URL e a Key no topo do cÃ³digo (SUPABASE_URL e SUPABASE_KEY)</div>
-          <div className="text-green-400 font-bold mt-2">âœ“ Pronto! Dados permanentes e compartilhados entre toda a equipe.</div>
+          <div className="mt-2">7. Cole a URL e a Key no topo do código (SUPABASE_URL e SUPABASE_KEY)</div>
+          <div className="text-green-400 font-bold mt-2">✓ Pronto! Dados permanentes e compartilhados entre toda a equipe.</div>
         </div>
       )}
     </div>
   );
 }
 
-// â”€â”€â”€ MAIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── MAIN APP ────────────────────────────────
 export default function AgroMap() {
   const [farms, setFarms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -326,7 +326,7 @@ export default function AgroMap() {
         + '<span style="background:' + color + ';color:white;padding:2px 8px;border-radius:12px;font-size:11px">' + (f.status || "") + '</span>'
         + '</div>'
         + '<div style="font-size:12px;color:#374151;margin-top:6px">'
-        + '<b>Area Total:</b> ' + (f.area_total || "â€”") + ' ha<br/>'
+        + '<b>Area Total:</b> ' + (f.area_total || "—") + ' ha<br/>'
         + '<b>1a Safra:</b> ' + t1.toLocaleString("pt-BR") + ' ha<br/>'
         + '<b>2a Safra:</b> ' + t2.toLocaleString("pt-BR") + ' ha'
         + '</div></div>';
@@ -372,7 +372,7 @@ export default function AgroMap() {
       }
     }
     setSyncing(false);
-    if (remaining.length === 0) showToast('âœ… Sincronizado com sucesso!');
+    if (remaining.length === 0) showToast('✅ Sincronizado com sucesso!');
   };
 
   // Load
@@ -398,7 +398,7 @@ export default function AgroMap() {
     load();
   }, []);
 
-  // Save helpers â€” with offline queue support
+  // Save helpers — with offline queue support
   const persist = useCallback(async (action, data, id) => {
     const tempId = `offline_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     if (!isOnline() || !CONFIGURED) {
@@ -436,7 +436,7 @@ export default function AgroMap() {
         lsSave([n, ...local]);
         queueAdd({ action: "insert", data: n });
         setPendingCount(queueLoad().length);
-        showToast("ðŸ“´ Salvo offline â€” sincronizarÃ¡ em breve");
+        showToast("📴 Salvo offline — sincronizará em breve");
         return [n];
       }
       showToast("Erro ao salvar: " + e.message);
@@ -444,7 +444,7 @@ export default function AgroMap() {
     }
   }, []);
 
-  // â”€â”€ CRUD â”€â”€
+  // ── CRUD ──
   const startNew = () => { setForm(emptyFazenda()); setEditId(null); setTab(0); };
   const startEdit = (f) => {
     setForm({
@@ -463,12 +463,12 @@ export default function AgroMap() {
       if (editId) {
         await persist("update", form, editId);
         setFarms(prev => prev.map(f => f.id === editId ? { ...f, ...form } : f));
-        showToast("Fazenda atualizada âœ“");
+        showToast("Fazenda atualizada ✓");
       } else {
         const result = await persist("insert", form);
         const novo = result?.[0] || { ...form, id: `loc_${Date.now()}` };
         setFarms(prev => [novo, ...prev]);
-        showToast("Fazenda cadastrada âœ“");
+        showToast("Fazenda cadastrada ✓");
       }
       setForm(null); setEditId(null); setTab(1);
     } catch {}
@@ -483,14 +483,14 @@ export default function AgroMap() {
 
   // Geolocation
   const getGeo = () => {
-    if (!navigator.geolocation) { showToast("GPS nÃ£o disponÃ­vel."); return; }
+    if (!navigator.geolocation) { showToast("GPS não disponível."); return; }
     setGeoLoading(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setForm(f => ({ ...f, lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) }));
-        setGeoLoading(false); showToast("LocalizaÃ§Ã£o capturada âœ“");
+        setGeoLoading(false); showToast("Localização capturada ✓");
       },
-      () => { setGeoLoading(false); showToast("NÃ£o foi possÃ­vel obter localizaÃ§Ã£o."); },
+      () => { setGeoLoading(false); showToast("Não foi possível obter localização."); },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
@@ -506,7 +506,7 @@ export default function AgroMap() {
   // Analytics
   const totalArea = farms.reduce((s, f) => s + fmtN(f.area_total), 0);
   const culturaTotals = ["soja", "milho", "algodao", "outra"].map(c => ({
-    name: c === "algodao" ? "AlgodÃ£o" : c.charAt(0).toUpperCase() + c.slice(1),
+    name: c === "algodao" ? "Algodão" : c.charAt(0).toUpperCase() + c.slice(1),
     total: farms.reduce((s, f) =>
       s + fmtN(f.safra1_seq?.[c]) + fmtN(f.safra1_irr?.[c]) + fmtN(f.safra2_seq?.[c]) + fmtN(f.safra2_irr?.[c]), 0),
   }));
@@ -521,12 +521,12 @@ export default function AgroMap() {
     try {
       const ctx = farms.length
         ? `Carteira com ${farms.length} fazenda(s):\n` + farms.slice(0, 20).map(f =>
-            `â€¢ ${f.fazenda} (${f.cliente}, ${f.municipio}/${f.estado}, ${f.status}): ` +
-            `Ãrea total declarada: ${f.area_total}ha. ` +
-            `1Âª Safra seq: S${f.safra1_seq?.soja||0}/M${f.safra1_seq?.milho||0}/A${f.safra1_seq?.algodao||0}ha. ` +
-            `1Âª Safra irr: S${f.safra1_irr?.soja||0}/M${f.safra1_irr?.milho||0}/A${f.safra1_irr?.algodao||0}ha. ` +
-            `2Âª Safra seq: S${f.safra2_seq?.soja||0}/M${f.safra2_seq?.milho||0}ha. ` +
-            `2Âª Safra irr: S${f.safra2_irr?.soja||0}/M${f.safra2_irr?.milho||0}ha.`
+            `• ${f.fazenda} (${f.cliente}, ${f.municipio}/${f.estado}, ${f.status}): ` +
+            `Área total declarada: ${f.area_total}ha. ` +
+            `1ª Safra seq: S${f.safra1_seq?.soja||0}/M${f.safra1_seq?.milho||0}/A${f.safra1_seq?.algodao||0}ha. ` +
+            `1ª Safra irr: S${f.safra1_irr?.soja||0}/M${f.safra1_irr?.milho||0}/A${f.safra1_irr?.algodao||0}ha. ` +
+            `2ª Safra seq: S${f.safra2_seq?.soja||0}/M${f.safra2_seq?.milho||0}ha. ` +
+            `2ª Safra irr: S${f.safra2_irr?.soja||0}/M${f.safra2_irr?.milho||0}ha.`
           ).join("\n")
         : "Nenhuma fazenda cadastrada.";
       const res = await fetch("/api/ai", {
@@ -534,8 +534,8 @@ export default function AgroMap() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-3-5-haiku-20241022", max_tokens: 1000,
-          system: "VocÃª Ã© um consultor agrÃ­cola sÃªnior especializado em carteiras de clientes agricultores no Brasil. Responda em portuguÃªs, de forma objetiva e prÃ¡tica, com foco em negÃ³cios e oportunidades comerciais.",
-          messages: [{ role: "user", content: `${ctx}\n\nAnÃ¡lise: ${aiPrompt}` }],
+          system: "Você é um consultor agrícola sênior especializado em carteiras de clientes agricultores no Brasil. Responda em português, de forma objetiva e prática, com foco em negócios e oportunidades comerciais.",
+          messages: [{ role: "user", content: `${ctx}\n\nAnálise: ${aiPrompt}` }],
         }),
       });
       const data = await res.json();
@@ -544,7 +544,7 @@ export default function AgroMap() {
     setAiLoading(false);
   };
 
-  // â”€â”€ Export Excel â”€â”€
+  // ── Export Excel ──
   const exportExcel = () => {
     if (farms.length === 0) { showToast("Nenhuma fazenda para exportar!"); return; }
     const esc = (v) => {
@@ -581,13 +581,13 @@ export default function AgroMap() {
     showToast("Relatorio exportado!");
   };
 
-  const TABS = ["ðŸ‘¤ Clientes", "ðŸ—‚ï¸ Fazendas", "ðŸ“Š AnÃ¡lise", "ðŸ—ºï¸ Mapa", "ðŸ¤– IA"];
+  const TABS = ["👤 Clientes", "🗂️ Fazendas", "📊 Análise", "🗺️ Mapa", "🤖 IA"];
 
   if (loading) return (
     <div className="min-h-screen bg-[#faf7f2] flex items-center justify-center">
       <div className="text-center text-[#3a7a1a]">
-        <div className="text-4xl animate-spin mb-3" style={{fontFamily:"monospace"}}>âŸ³</div>
-        <div className="text-sm tracking-widest">Carregando AGROÂ·MAP...</div>
+        <div className="text-4xl animate-spin mb-3" style={{fontFamily:"monospace"}}>⟳</div>
+        <div className="text-sm tracking-widest">Carregando AGRO·MAP...</div>
       </div>
     </div>
   );
@@ -600,25 +600,25 @@ export default function AgroMap() {
           <div className="flex items-center gap-3">
             {/* Logo circular com 4 culturas */}
             <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* CÃ­rculo de fundo */}
+              {/* Círculo de fundo */}
               <circle cx="22" cy="22" r="21" fill="#0a1a06" stroke="#3a7a1a" strokeWidth="1.2"/>
               
-              {/* ALGODÃƒO - quadrante superior esquerdo (capulho) */}
-              {/* PÃ©talas do capulho */}
+              {/* ALGODÃO - quadrante superior esquerdo (capulho) */}
+              {/* Pétalas do capulho */}
               <ellipse cx="13" cy="13" rx="3.5" ry="2.5" fill="#e8f5e0" stroke="#5a9e2f" strokeWidth="0.6" transform="rotate(-45 13 13)"/>
               <ellipse cx="13" cy="13" rx="3.5" ry="2.5" fill="#e8f5e0" stroke="#5a9e2f" strokeWidth="0.6" transform="rotate(45 13 13)"/>
               <ellipse cx="13" cy="13" rx="3.5" ry="2.5" fill="#e8f5e0" stroke="#5a9e2f" strokeWidth="0.6" transform="rotate(0 13 13)"/>
               <ellipse cx="13" cy="13" rx="3.5" ry="2.5" fill="#e8f5e0" stroke="#5a9e2f" strokeWidth="0.6" transform="rotate(90 13 13)"/>
               {/* Centro do capulho */}
               <circle cx="13" cy="13" r="2" fill="#c8e0a0" stroke="#5a9e2f" strokeWidth="0.5"/>
-              {/* SÃ©pala */}
+              {/* Sépala */}
               <line x1="13" y1="16" x2="12" y2="20" stroke="#3a7a1a" strokeWidth="0.8" strokeLinecap="round"/>
               <line x1="13" y1="16" x2="14" y2="19.5" stroke="#3a7a1a" strokeWidth="0.6" strokeLinecap="round"/>
 
               {/* SOJA - quadrante superior direito (vagem) */}
               {/* Vagem curva */}
               <path d="M28 8 Q35 10 34 17" stroke="#6ab030" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-              {/* GrÃ£os dentro da vagem */}
+              {/* Grãos dentro da vagem */}
               <ellipse cx="29.5" cy="9.5" rx="1.4" ry="1" fill="#8aba40" transform="rotate(-20 29.5 9.5)"/>
               <ellipse cx="31.5" cy="11.5" rx="1.4" ry="1" fill="#8aba40" transform="rotate(-10 31.5 11.5)"/>
               <ellipse cx="33" cy="14" rx="1.4" ry="1" fill="#8aba40" transform="rotate(5 33 14)"/>
@@ -626,12 +626,12 @@ export default function AgroMap() {
               <ellipse cx="27" cy="10" rx="2" ry="1.2" fill="#4a8a20" stroke="#3a7a1a" strokeWidth="0.4" transform="rotate(-40 27 10)"/>
 
               {/* MILHO - quadrante inferior direito (espiga) */}
-              {/* Palha/brÃ¡ctea */}
+              {/* Palha/bráctea */}
               <path d="M28 24 Q33 26 32 36" stroke="#4a8a20" strokeWidth="1" fill="none" strokeLinecap="round"/>
               <path d="M30 23 Q36 27 33 36" stroke="#3a7a1a" strokeWidth="0.7" fill="none" strokeLinecap="round"/>
               {/* Corpo da espiga */}
               <rect x="26" y="25" width="5" height="10" rx="2.5" fill="#e8b830" stroke="#c89820" strokeWidth="0.6"/>
-              {/* GrÃ£os da espiga */}
+              {/* Grãos da espiga */}
               <circle cx="27.5" cy="27" r="0.9" fill="#f0ca40"/>
               <circle cx="29.5" cy="27" r="0.9" fill="#f0ca40"/>
               <circle cx="27.5" cy="29" r="0.9" fill="#f0ca40"/>
@@ -643,38 +643,38 @@ export default function AgroMap() {
               <path d="M28.5 25 Q27 20 28 18" stroke="#d4a820" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
               <path d="M30 25 Q30 20 31 18" stroke="#d4a820" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
 
-              {/* SORGO - quadrante inferior esquerdo (panÃ­cula) */}
+              {/* SORGO - quadrante inferior esquerdo (panícula) */}
               {/* Haste principal */}
               <line x1="14" y1="36" x2="14" y2="24" stroke="#5a9e2f" strokeWidth="1.2" strokeLinecap="round"/>
-              {/* RamificaÃ§Ãµes da panÃ­cula */}
+              {/* Ramificações da panícula */}
               <line x1="14" y1="24" x2="10" y2="20" stroke="#4a8a28" strokeWidth="0.8" strokeLinecap="round"/>
               <line x1="14" y1="25" x2="11" y2="21" stroke="#4a8a28" strokeWidth="0.7" strokeLinecap="round"/>
               <line x1="14" y1="26" x2="18" y2="21" stroke="#4a8a28" strokeWidth="0.8" strokeLinecap="round"/>
               <line x1="14" y1="25.5" x2="17" y2="21.5" stroke="#4a8a28" strokeWidth="0.7" strokeLinecap="round"/>
               <line x1="14" y1="24.5" x2="13" y2="20" stroke="#4a8a28" strokeWidth="0.7" strokeLinecap="round"/>
-              {/* GrÃ£os nas pontas */}
+              {/* Grãos nas pontas */}
               <circle cx="10" cy="19.5" r="1.2" fill="#8a5a20"/>
               <circle cx="11" cy="20.5" r="1" fill="#a06828"/>
               <circle cx="13" cy="19.5" r="1.2" fill="#8a5a20"/>
               <circle cx="17" cy="21" r="1" fill="#a06828"/>
               <circle cx="18" cy="20.5" r="1.2" fill="#8a5a20"/>
 
-              {/* DivisÃ³rias sutis em cruz */}
+              {/* Divisórias sutis em cruz */}
               <line x1="22" y1="2" x2="22" y2="42" stroke="#1e3d14" strokeWidth="0.5" opacity="0.6"/>
               <line x1="2" y1="22" x2="42" y2="22" stroke="#1e3d14" strokeWidth="0.5" opacity="0.6"/>
             </svg>
             <div>
-              <div className="text-[#3a7a1a] font-black tracking-widest text-lg leading-none">AGROÂ·MAP</div>
+              <div className="text-[#3a7a1a] font-black tracking-widest text-lg leading-none">AGRO·MAP</div>
               <div className="text-[#8a8a6a] text-xs tracking-wider flex items-center gap-2">
-                v3.0 Â· {CONFIGURED ? "â˜ï¸ Supabase" : "ðŸ’¾ Local"}
-                {!online && <span className="text-yellow-500 font-bold">Â· ðŸ“´ Offline</span>}
-                {online && syncing && <span className="text-blue-400 font-bold">Â· ðŸ”„ Sincronizando...</span>}
+                v3.0 · {CONFIGURED ? "☁️ Supabase" : "💾 Local"}
+                {!online && <span className="text-yellow-500 font-bold">· 📴 Offline</span>}
+                {online && syncing && <span className="text-blue-400 font-bold">· 🔄 Sincronizando...</span>}
                 {online && !syncing && pendingCount > 0 && (
                   <button onClick={syncQueue} className="text-yellow-400 font-bold hover:text-yellow-300 transition-colors">
-                    Â· â³ {pendingCount} pendente(s) â€” toque para sincronizar
+                    · ⏳ {pendingCount} pendente(s) — toque para sincronizar
                   </button>
                 )}
-                {online && !syncing && pendingCount === 0 && CONFIGURED && <span className="text-[#4a8a24]">Â· âœ… Sincronizado</span>}
+                {online && !syncing && pendingCount === 0 && CONFIGURED && <span className="text-[#4a8a24]">· ✅ Sincronizado</span>}
               </div>
             </div>
           </div>
@@ -698,11 +698,11 @@ export default function AgroMap() {
       <div className="max-w-5xl mx-auto px-4 py-5">
         {showSetup && <SetupBanner onDismiss={() => setShowSetup(false)} />}
 
-        {/* â”€â”€ TAB 0: FAZENDAS â”€â”€ */}
+        {/* ── TAB 0: FAZENDAS ── */}
         {tab === 1 && (
           <div className="space-y-3">
             <div className="flex gap-2 flex-wrap items-center">
-              <input className={INP + " max-w-xs"} placeholder="ðŸ” Cliente ou fazenda..." value={filter} onChange={e => setFilter(e.target.value)} />
+              <input className={INP + " max-w-xs"} placeholder="🔍 Cliente ou fazenda..." value={filter} onChange={e => setFilter(e.target.value)} />
               <select className={INP + " w-auto"} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
                 <option>Todos</option>
                 {STATUSES.map(s => <option key={s}>{s}</option>)}
@@ -715,7 +715,7 @@ export default function AgroMap() {
 
             {filtered.length === 0 && (
               <div className="text-center py-16 border-[#ccc8bc]">
-                <div className="text-5xl mb-3">ðŸŒ±</div>
+                <div className="text-5xl mb-3">🌱</div>
                 <div>Nenhuma fazenda encontrada.</div>
                 <button onClick={startNew} className="mt-3 text-[#3a7a1a] text-xs underline">Cadastrar primeira fazenda</button>
               </div>
@@ -730,22 +730,22 @@ export default function AgroMap() {
                     <div className="flex justify-between items-start gap-2">
                       <div className="min-w-0">
                         <div className="text-[#3a7a1a] font-black truncate">{f.fazenda}</div>
-                        <div className="text-[#5a5a42] text-xs">{f.cliente} Â· {f.municipio}/{f.estado}</div>
-                        {f.lat && <div className="text-[#2a3a1a] text-xs mt-0.5">ðŸ“ {f.lat}, {f.lng}</div>}
+                        <div className="text-[#5a5a42] text-xs">{f.cliente} · {f.municipio}/{f.estado}</div>
+                        {f.lat && <div className="text-[#2a3a1a] text-xs mt-0.5">📍 {f.lat}, {f.lng}</div>}
                       </div>
                       <div className="flex gap-1.5 items-center shrink-0 flex-wrap justify-end">
                         <span className={`text-xs px-2 py-0.5 rounded-full border ${f.status === "Ativo" ? "border-[#6ab030] text-[#3a7a1a]" : f.status === "Prospecto" ? "border-yellow-600 text-yellow-600" : "border-[#ddd8cc] border-[#ccc8bc]"}`}>{f.status}</span>
-                        {f.ano_safra && <span className="text-xs px-2 py-0.5 rounded-full border border-[#a8c878] text-[#4a8a24]">ðŸŒ¾ {f.ano_safra}</span>}
-                      {f._pending && <span className="text-xs px-2 py-0.5 rounded-full border border-yellow-700 text-yellow-500 animate-pulse">â³ Pendente</span>}
-                        <button onClick={() => setExpandedId(expanded ? null : f.id)} className="text-[#5a5a42] hover:text-[#3a7a1a] text-xs px-2 py-1 border border-[#ddd8cc] rounded-lg transition-colors">{expanded ? "â–²" : "â–¼"}</button>
-                        <button onClick={() => startEdit(f)} className="text-[#5a5a42] hover:text-[#3a7a1a] text-xs px-2 py-1 border border-[#ddd8cc] rounded-lg transition-colors">âœï¸</button>
-                        <button onClick={() => deleteFarm(f.id)} className="text-[#2a1a1a] hover:text-red-400 text-xs px-2 py-1 border border-[#1a0a0a] rounded-lg transition-colors">âœ•</button>
+                        {f.ano_safra && <span className="text-xs px-2 py-0.5 rounded-full border border-[#a8c878] text-[#4a8a24]">🌾 {f.ano_safra}</span>}
+                      {f._pending && <span className="text-xs px-2 py-0.5 rounded-full border border-yellow-700 text-yellow-500 animate-pulse">⏳ Pendente</span>}
+                        <button onClick={() => setExpandedId(expanded ? null : f.id)} className="text-[#5a5a42] hover:text-[#3a7a1a] text-xs px-2 py-1 border border-[#ddd8cc] rounded-lg transition-colors">{expanded ? "▲" : "▼"}</button>
+                        <button onClick={() => startEdit(f)} className="text-[#5a5a42] hover:text-[#3a7a1a] text-xs px-2 py-1 border border-[#ddd8cc] rounded-lg transition-colors">✏️</button>
+                        <button onClick={() => deleteFarm(f.id)} className="text-[#2a1a1a] hover:text-red-400 text-xs px-2 py-1 border border-[#1a0a0a] rounded-lg transition-colors">✕</button>
                       </div>
                     </div>
 
                     <div className="flex gap-2 mt-3 flex-wrap text-xs">
                       <span className="bg-[#ede8df] border border-[#ddd8cc] rounded-lg px-2 py-1">
-                        Ãrea Total: <span className="text-[#3a7a1a] font-bold">{fmt(f.area_total)} ha</span>
+                        Área Total: <span className="text-[#3a7a1a] font-bold">{fmt(f.area_total)} ha</span>
                       </span>
                       <span className="bg-[#ede8df] border border-[#ddd8cc] rounded-lg px-2 py-1">
                         Plantado: <span className="text-[#3a7a1a] font-bold">{areaTot.toLocaleString("pt-BR")} ha</span>
@@ -759,17 +759,17 @@ export default function AgroMap() {
                   {expanded && (
                     <div className="border-t border-[#ddd8cc] bg-[#faf7f2] px-4 py-4 space-y-3">
                       {[
-                        ["1Âª Safra Â· Sequeiro", f.safra1_seq, "ðŸŒ¤ï¸"],
-                        ["1Âª Safra Â· Irrigado", f.safra1_irr, "ðŸ’§"],
-                        ["2Âª Safra Â· Sequeiro", f.safra2_seq, "ðŸŒ¤ï¸"],
-                        ["2Âª Safra Â· Irrigado", f.safra2_irr, "ðŸ’§"],
+                        ["1ª Safra · Sequeiro", f.safra1_seq, "🌤️"],
+                        ["1ª Safra · Irrigado", f.safra1_irr, "💧"],
+                        ["2ª Safra · Sequeiro", f.safra2_seq, "🌤️"],
+                        ["2ª Safra · Irrigado", f.safra2_irr, "💧"],
                       ].map(([title, data, icon]) => {
                         if (!data || totalCultura(data) === 0) return null;
                         return (
                           <div key={title} className="text-xs">
                             <div className="text-[#4a8a24] font-bold mb-1">{icon} {title}</div>
                             <div className="flex gap-2 flex-wrap">
-                              {[["Soja", data.soja], ["Sorgo", data.sorgo], ["Milho", data.milho], ["AlgodÃ£o", data.algodao], [data.outra_nome || "Outra", data.outra]].map(([l, v]) =>
+                              {[["Soja", data.soja], ["Sorgo", data.sorgo], ["Milho", data.milho], ["Algodão", data.algodao], [data.outra_nome || "Outra", data.outra]].map(([l, v]) =>
                                 v ? <span key={l} className="bg-[#ede8df] border border-[#ddd8cc] rounded px-2 py-0.5">{l}: <span className="text-[#3a7a1a] font-bold">{fmt(v)} ha</span></span> : null
                               )}
                             </div>
@@ -785,16 +785,16 @@ export default function AgroMap() {
           </div>
         )}
 
-        {/* â”€â”€ TAB 1: CADASTRO â”€â”€ */}
+        {/* ── TAB 1: CADASTRO ── */}
         {tab === 0 && form && (
           <div className="space-y-4">
             <div className={CARD + " p-5"}>
               <div className="text-[#3a7a1a] font-black text-sm uppercase tracking-widest mb-4">
-                {editId ? "âœï¸ Editar Fazenda" : "âž• Nova Fazenda"}
+                {editId ? "✏️ Editar Fazenda" : "➕ Nova Fazenda"}
               </div>
 
               {/* Dados do cliente */}
-              <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-3">â–¸ Dados do Cliente</div>
+              <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-3">▸ Dados do Cliente</div>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <Fld label="Cliente *" col="col-span-1"><input className={INP} placeholder="Nome do cliente" value={form.cliente} onChange={e => setForm(f => ({ ...f, cliente: e.target.value }))} /></Fld>
                 <Fld label="Status" col="col-span-1">
@@ -812,11 +812,11 @@ export default function AgroMap() {
               </div>
 
               {/* Dados da fazenda */}
-              <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-3 border-t border-[#ddd8cc] pt-4">â–¸ Dados da Fazenda</div>
+              <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-3 border-t border-[#ddd8cc] pt-4">▸ Dados da Fazenda</div>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <Fld label="Fazenda *" col="col-span-2 md:col-span-1"><input className={INP} placeholder="Nome da fazenda" value={form.fazenda} onChange={e => setForm(f => ({ ...f, fazenda: e.target.value }))} /></Fld>
-                <Fld label="Ãrea Total (ha)" col="col-span-2 md:col-span-1"><input type="number" className={INP} placeholder="0" value={form.area_total} onChange={e => setForm(f => ({ ...f, area_total: e.target.value }))} /></Fld>
-                <Fld label="MunicÃ­pio" col="col-span-1">
+                <Fld label="Área Total (ha)" col="col-span-2 md:col-span-1"><input type="number" className={INP} placeholder="0" value={form.area_total} onChange={e => setForm(f => ({ ...f, area_total: e.target.value }))} /></Fld>
+                <Fld label="Município" col="col-span-1">
                   <CitySearch estado={form.estado} value={form.municipio} onChange={v => setForm(f => ({ ...f, municipio: v }))} />
                 </Fld>
                 <Fld label="Estado" col="col-span-1">
@@ -827,41 +827,41 @@ export default function AgroMap() {
                 </Fld>
               </div>
 
-              {/* GeolocalizaÃ§Ã£o */}
+              {/* Geolocalização */}
               <div className="border border-[#ddd8cc] rounded-xl p-3 mb-4">
-                <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-2">ðŸ“ GeolocalizaÃ§Ã£o</div>
+                <div className="text-[#5a5a42] text-xs uppercase tracking-widest font-bold mb-2">📍 Geolocalização</div>
                 <div className="flex gap-2 items-end">
                   <Fld label="Latitude" col="flex-1"><input className={INP} placeholder="Ex: -15.123456" value={form.lat} onChange={e => setForm(f => ({ ...f, lat: e.target.value }))} /></Fld>
                   <Fld label="Longitude" col="flex-1"><input className={INP} placeholder="Ex: -49.654321" value={form.lng} onChange={e => setForm(f => ({ ...f, lng: e.target.value }))} /></Fld>
                   <button onClick={getGeo} disabled={geoLoading}
                     className="mb-0.5 bg-[#1e3d14] hover:bg-[#2a5a1a] text-[#3a7a1a] font-bold px-3 py-2 rounded-lg text-xs transition-colors disabled:opacity-50 whitespace-nowrap">
-                    {geoLoading ? "âŸ³" : "ðŸ“ GPS"}
+                    {geoLoading ? "⟳" : "📍 GPS"}
                   </button>
                 </div>
               </div>
 
               {/* Safras */}
               {[
-                { label: "ðŸŒ¾ Primeira Safra", seqKey: "safra1_seq", irrKey: "safra1_irr", safra: 1 },
-                { label: "ðŸŒ¿ Segunda Safra (Safrinha)", seqKey: "safra2_seq", irrKey: "safra2_irr", safra: 2 },
+                { label: "🌾 Primeira Safra", seqKey: "safra1_seq", irrKey: "safra1_irr", safra: 1 },
+                { label: "🌿 Segunda Safra (Safrinha)", seqKey: "safra2_seq", irrKey: "safra2_irr", safra: 2 },
               ].map(({ label, seqKey, irrKey, safra }) => (
                 <div key={label} className="border border-[#ddd8cc] rounded-xl p-4 mb-4">
                   <div className="text-[#3a7a1a] text-xs font-black uppercase tracking-widest mb-3">{label}</div>
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    <CulturaBlock title="Ãrea Sequeiro" icon="ðŸŒ¤ï¸" value={form[seqKey]} onChange={v => setForm(f => ({ ...f, [seqKey]: v }))} safra={safra} />
-                    <CulturaBlock title="Ãrea Irrigada" icon="ðŸ’§" value={form[irrKey]} onChange={v => setForm(f => ({ ...f, [irrKey]: v }))} safra={safra} />
+                    <CulturaBlock title="Área Sequeiro" icon="🌤️" value={form[seqKey]} onChange={v => setForm(f => ({ ...f, [seqKey]: v }))} safra={safra} />
+                    <CulturaBlock title="Área Irrigada" icon="💧" value={form[irrKey]} onChange={v => setForm(f => ({ ...f, [irrKey]: v }))} safra={safra} />
                   </div>
                 </div>
               ))}
 
-              {/* ObservaÃ§Ãµes */}
-              <Fld label="ObservaÃ§Ãµes" col="">
+              {/* Observações */}
+              <Fld label="Observações" col="">
                 <textarea className={INP + " resize-none"} rows={3} placeholder="Notas livres sobre o cliente ou a fazenda..." value={form.obs} onChange={e => setForm(f => ({ ...f, obs: e.target.value }))} />
               </Fld>
 
               <div className="flex gap-3 mt-4">
                 <button onClick={saveFarm} className="bg-[#3a7a1a] text-black font-black px-6 py-2.5 rounded-xl text-sm hover:bg-[#4a8a24] transition-colors">
-                  {editId ? "âœ“ Salvar" : "+ Cadastrar"}
+                  {editId ? "✓ Salvar" : "+ Cadastrar"}
                 </button>
                 <button onClick={() => { setForm(null); setEditId(null); setTab(1); }} className="border border-[#ddd8cc] text-[#5a5a42] px-4 py-2.5 rounded-xl text-sm hover:text-[#3a7a1a] transition-colors">
                   Cancelar
@@ -871,21 +871,21 @@ export default function AgroMap() {
           </div>
         )}
 
-        {/* â”€â”€ TAB 2: ANÃLISE â”€â”€ */}
+        {/* ── TAB 2: ANÁLISE ── */}
         {tab === 2 && (
           <div className="space-y-4">
             {/* Export button */}
             <div className="flex justify-end">
               <button onClick={exportExcel}
                 className="flex items-center gap-2 bg-[#f0f5e8] hover:bg-[#e8f0d8] border border-[#2a5a14] text-[#3a7a1a] font-bold px-4 py-2 rounded-xl text-xs transition-colors">
-                ðŸ“Š Exportar Excel
+                📊 Exportar Excel
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {[
                 ["Clientes", [...new Set(farms.map(f => f.cliente))].length],
                 ["Fazendas", farms.length],
-                ["Ãrea Total", totalArea.toLocaleString("pt-BR") + " ha"],
+                ["Área Total", totalArea.toLocaleString("pt-BR") + " ha"],
                 ["Ativos", farms.filter(f => f.status === "Ativo").length],
               ].map(([l, v]) => (
                 <div key={l} className={CARD + " p-4 text-center"}>
@@ -896,7 +896,7 @@ export default function AgroMap() {
             </div>
 
             <div className={CARD + " p-5"}>
-              <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-4 font-black">â—† Ãrea Total por Cultura</div>
+              <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-4 font-black">◆ Área Total por Cultura</div>
               {culturaTotals.map(c => (
                 <div key={c.name} className="mb-3">
                   <div className="flex justify-between text-xs mb-1">
@@ -913,7 +913,7 @@ export default function AgroMap() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className={CARD + " p-4"}>
-                <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">ðŸ’§ Irrigado vs Sequeiro</div>
+                <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">💧 Irrigado vs Sequeiro</div>
                 {[["Irrigado", totalIrrig, "#6ab030"], ["Sequeiro", totalSeq, "#3a7a1a"]].map(([l, v, c]) => (
                   <div key={l} className="mb-2">
                     <div className="flex justify-between text-xs mb-1">
@@ -926,7 +926,7 @@ export default function AgroMap() {
                 ))}
               </div>
               <div className={CARD + " p-4"}>
-                <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">ðŸ“Š Por Status</div>
+                <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">📊 Por Status</div>
                 {STATUSES.map(s => {
                   const n = farms.filter(f => f.status === s).length;
                   return (
@@ -940,7 +940,7 @@ export default function AgroMap() {
             </div>
 
             <div className={CARD + " p-4"}>
-              <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">ðŸ† Top Fazendas por Ãrea Plantada</div>
+              <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">🏆 Top Fazendas por Área Plantada</div>
               {[...farms].sort((a, b) => totalFazenda(b) - totalFazenda(a)).slice(0, 5).map((f, i) => (
                 <div key={f.id} className="flex items-center gap-3 text-xs mb-2">
                   <span className="text-[#5a5a42] w-4">{i + 1}</span>
@@ -952,7 +952,7 @@ export default function AgroMap() {
           </div>
         )}
 
-        {/* â”€â”€ TAB 3: IA â”€â”€ */}
+        {/* ── TAB 3: IA ── */}
         {tab === 3 && (
           <div className="space-y-4">
             {/* Legend */}
@@ -969,7 +969,7 @@ export default function AgroMap() {
             {!leafletReady ? (
               <div className="border border-[#ddd8cc] rounded-xl bg-[#f5f0e8] flex items-center justify-center" style={{height:"420px"}}>
                 <div className="text-center text-[#8a8a6a]">
-                  <div className="text-2xl animate-spin mb-2">âŸ³</div>
+                  <div className="text-2xl animate-spin mb-2">⟳</div>
                   <div className="text-sm">Carregando mapa...</div>
                 </div>
               </div>
@@ -978,7 +978,7 @@ export default function AgroMap() {
             )}
             {farms.filter(f => !f.lat || !f.lng).length > 0 && (
               <div className="text-xs text-[#8a5a10] bg-[#fdf5e4] border border-[#e8d0a0] rounded-lg px-3 py-2">
-                âš ï¸ {farms.filter(f => !f.lat || !f.lng).length} fazenda(s) sem GPS â€” use o botÃ£o ðŸ“ GPS no cadastro para adicionar localizaÃ§Ã£o.
+                ⚠️ {farms.filter(f => !f.lat || !f.lng).length} fazenda(s) sem GPS — use o botão 📍 GPS no cadastro para adicionar localização.
               </div>
             )}
           </div>
@@ -987,16 +987,16 @@ export default function AgroMap() {
         {tab === 4 && (
           <div className="space-y-4">
             <div className={CARD + " p-5"}>
-              <div className="text-[#3a7a1a] font-black text-sm mb-1">ðŸ¤– IA Consultora AgrÃ­cola</div>
-              <div className="text-[#5a5a42] text-xs mb-4">AnÃ¡lise inteligente baseada nos dados reais da sua carteira.</div>
+              <div className="text-[#3a7a1a] font-black text-sm mb-1">🤖 IA Consultora Agrícola</div>
+              <div className="text-[#5a5a42] text-xs mb-4">Análise inteligente baseada nos dados reais da sua carteira.</div>
               <div className="grid grid-cols-1 gap-2 mb-4 md:grid-cols-2">
                 {[
-                  "Quais clientes tÃªm maior Ã¡rea disponÃ­vel para expandir?",
-                  "Analise o mix de culturas e potencial de diversificaÃ§Ã£o",
+                  "Quais clientes têm maior área disponível para expandir?",
+                  "Analise o mix de culturas e potencial de diversificação",
                   "Oportunidades de crescimento em segunda safra",
-                  "Comparativo irrigado vs sequeiro â€” oportunidades",
-                  "Clientes prospectos com maior potencial de conversÃ£o",
-                  "EstratÃ©gias para aumentar participaÃ§Ã£o em algodÃ£o",
+                  "Comparativo irrigado vs sequeiro — oportunidades",
+                  "Clientes prospectos com maior potencial de conversão",
+                  "Estratégias para aumentar participação em algodão",
                 ].map(s => (
                   <button key={s} onClick={() => setAiPrompt(s)}
                     className="text-left text-xs border border-[#ddd8cc] rounded-lg px-3 py-2 text-[#5a5a42] hover:border-[#a8c878] hover:text-[#3a7a1a] transition-colors">
@@ -1004,16 +1004,16 @@ export default function AgroMap() {
                   </button>
                 ))}
               </div>
-              <textarea className={INP + " resize-none mb-3"} rows={3} placeholder="Sua pergunta ou anÃ¡lise..."
+              <textarea className={INP + " resize-none mb-3"} rows={3} placeholder="Sua pergunta ou análise..."
                 value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
               <button onClick={runAI} disabled={aiLoading || !aiPrompt.trim()}
                 className="bg-[#3a7a1a] text-black font-black px-6 py-2.5 rounded-xl text-sm hover:bg-[#4a8a24] transition-colors disabled:opacity-40 flex items-center gap-2">
-                {aiLoading ? <><span className="animate-spin inline-block">âŸ³</span> Analisando...</> : "ðŸ¤– Consultar IA"}
+                {aiLoading ? <><span className="animate-spin inline-block">⟳</span> Analisando...</> : "🤖 Consultar IA"}
               </button>
             </div>
             {aiResult && (
               <div className={CARD + " p-5 border-[#a8c878]"}>
-                <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">â—† AnÃ¡lise</div>
+                <div className="text-[#3a7a1a] text-xs uppercase tracking-widest mb-3 font-black">◆ Análise</div>
                 <div className="text-[#1a1a14] text-sm whitespace-pre-wrap leading-relaxed">{aiResult}</div>
               </div>
             )}
@@ -1023,11 +1023,10 @@ export default function AgroMap() {
 
       {/* PWA install hint */}
       <div className="fixed bottom-4 right-4 border-[#ccc8bc] text-xs text-right pointer-events-none">
-        <div>ðŸ“± Para instalar como app:</div>
-        <div>iOS: Compartilhar â†’ Tela Inicial</div>
-        <div>Android: Menu â†’ Instalar app</div>
+        <div>📱 Para instalar como app:</div>
+        <div>iOS: Compartilhar → Tela Inicial</div>
+        <div>Android: Menu → Instalar app</div>
       </div>
     </div>
   );
 }
-
