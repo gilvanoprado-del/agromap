@@ -533,7 +533,7 @@ export default function AgroMap() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-3-5-sonnet-20241022", max_tokens: 1000,
+          model: "claude-3-5-haiku-20241022", max_tokens: 1000,
           system: "Você é um consultor agrícola sênior especializado em carteiras de clientes agricultores no Brasil. Responda em português, de forma objetiva e prática, com foco em negócios e oportunidades comerciais.",
           messages: [{ role: "user", content: `${ctx}\n\nAnálise: ${aiPrompt}` }],
         }),
@@ -1030,3 +1030,4 @@ export default function AgroMap() {
     </div>
   );
 }
+
