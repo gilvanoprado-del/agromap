@@ -1030,4 +1030,3 @@ export default function AgroMap() {
     </div>
   );
 }
-
