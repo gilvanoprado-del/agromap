@@ -3,7 +3,11 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+    { "source": "/api/:path*", "destination": "/api/:path*" }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
 }
