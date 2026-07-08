@@ -5,8 +5,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 // Após criar seu projeto em supabase.com,
 // substitua os valores abaixo:
 // ─────────────────────────────────────────────
-const SUPABASE_URL = "https://udtggjrincredltdaecp.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkdGdnanJpbmNyZWRsdGRhZWNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjI4NzYsImV4cCI6MjA5MTkzODg3Nn0.Kh0-mlqcYMG7urL7NT7e2tvQBT81lmXM2-qt9rE9EZw";
+const SUPABASE_URL = "https://xqkielzmzfvmuaptdvuo.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhxa2llbHptemZ2bXVhcHRkdnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NjA5MTEsImV4cCI6MjA5OTAzNjkxMX0.D1vB_VDo4Q_uPCK0mmrnF4Z3_rB1PgHDv4sWtWY9-3I";
 
 const CONFIGURED = SUPABASE_URL !== "COLE_SUA_URL_AQUI";
 
