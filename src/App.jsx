@@ -36,6 +36,12 @@ const dbInsert = (data) => sb("fazendas", { method: "POST", body: JSON.stringify
 const dbUpdate = (id, data) => sb(`fazendas?id=eq.${id}`, { method: "PATCH", body: JSON.stringify(data), prefer: "return=minimal" });
 const dbDelete = (id) => sb(`fazendas?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" });
 
+// ─── GD (Gleba Demonstrativa) helpers ───
+const gdLoad = () => sb("gd?order=created_at.desc");
+const gdInsert = (data) => sb("gd", { method: "POST", body: JSON.stringify(data) });
+const gdUpdate = (id, data) => sb(`gd?id=eq.${id}`, { method: "PATCH", body: JSON.stringify(data), prefer: "return=minimal" });
+const gdDelete = (id) => sb(`gd?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" });
+
 // ─── Local Storage fallback ──────────────────
 const LS_KEY = "agromap_v3";
 const LS_QUEUE = "agromap_queue_v3";
@@ -45,6 +51,12 @@ const queueLoad = () => { try { return JSON.parse(localStorage.getItem(LS_QUEUE)
 const queueSave = (d) => { try { localStorage.setItem(LS_QUEUE, JSON.stringify(d)); } catch {} };
 const queueAdd = (item) => { const q = queueLoad(); queueSave([...q, item]); };
 const queueRemove = (tempId) => { queueSave(queueLoad().filter(i => i.data.id !== tempId)); };
+
+// ─── GD storage local + registro vazio ───
+const GD_LS = "agromap_gd_v1";
+const gdLsLoad = () => { try { return JSON.parse(localStorage.getItem(GD_LS) || "[]"); } catch { return []; } };
+const gdLsSave = (d) => { try { localStorage.setItem(GD_LS, JSON.stringify(d)); } catch {} };
+const emptyGD = () => ({ cultura: "", lat: "", lng: "", data_plantio: "", area_ha: "", cultivar: "", espacamento: "", populacao: "", cultura_anterior: "", nivel_investimento: "", sistema: "" });
 const isOnline = () => navigator.onLine;
 
 // ─── Constants ──────────────────────────────
@@ -253,6 +265,9 @@ export default function AgroMap() {
   const [syncing, setSyncing] = useState(false);
   const [leafletReady, setLeafletReady] = useState(false);
   const mapRef = useRef(null);
+  const [gdList, setGdList] = useState([]);
+  const [gdForm, setGdForm] = useState(null);
+  const [gdEditId, setGdEditId] = useState(null);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
 
@@ -275,6 +290,16 @@ export default function AgroMap() {
   // Auto-sync on mount if online
   useEffect(() => {
     if (isOnline() && queueLoad().length > 0) syncQueue();
+  }, []);
+
+  // Carrega GD (nuvem + cache local)
+  useEffect(() => {
+    const cache = gdLsLoad();
+    if (cache.length) setGdList(cache);
+    (async () => {
+      if (!CONFIGURED || !isOnline()) return;
+      try { const r = await gdLoad(); setGdList(r); gdLsSave(r); } catch {}
+    })();
   }, []);
 
   // Load Leaflet dynamically
@@ -452,6 +477,43 @@ export default function AgroMap() {
   }, []);
 
   // ── CRUD ──
+  // ── GD CRUD ──
+  const gdStartNew = () => { setGdForm(emptyGD()); setGdEditId(null); };
+  const gdStartEdit = (g) => { setGdForm({ ...emptyGD(), ...g }); setGdEditId(g.id); };
+  const gdCancel = () => { setGdForm(null); setGdEditId(null); };
+  const getGeoGD = () => {
+    if (!navigator.geolocation) { showToast("GPS não disponível."); return; }
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setGdForm(f => ({ ...f, lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) })); setGeoLoading(false); showToast("Localização capturada ✓"); },
+      () => { setGeoLoading(false); showToast("Não foi possível obter localização."); },
+      { enableHighAccuracy: true }
+    );
+  };
+  const saveGD = async () => {
+    if (!gdForm.cultura) { showToast("Preencha a Cultura!"); return; }
+    try {
+      if (gdEditId) {
+        try { await gdUpdate(gdEditId, gdForm); } catch (e) {}
+        const upd = gdList.map(g => g.id === gdEditId ? { ...g, ...gdForm } : g);
+        setGdList(upd); gdLsSave(upd); showToast("GD atualizado ✓");
+      } else {
+        let novo;
+        try { const res = await gdInsert(gdForm); novo = (res && res[0]) || { ...gdForm, id: `loc_${Date.now()}` }; }
+        catch (e) { novo = { ...gdForm, id: `loc_${Date.now()}` }; showToast("📴 Salvo localmente"); }
+        const upd = [novo, ...gdList];
+        setGdList(upd); gdLsSave(upd); showToast("GD cadastrado ✓");
+      }
+      setGdForm(null); setGdEditId(null);
+    } catch (e) { showToast("Erro ao salvar: " + e.message); }
+  };
+  const deleteGD = async (id) => {
+    if (!confirm("Remover este GD?")) return;
+    try { await gdDelete(id); } catch (e) {}
+    const upd = gdList.filter(g => g.id !== id);
+    setGdList(upd); gdLsSave(upd); showToast("Removido.");
+  };
+
   const startNew = () => { setForm(emptyFazenda()); setEditId(null); setTab(0); };
   const startEdit = (f) => {
     setForm({
@@ -588,7 +650,7 @@ export default function AgroMap() {
     showToast("Relatorio exportado!");
   };
 
-  const TABS = ["👤 Clientes", "🗂️ Fazendas", "📊 Análise", "🗺️ Mapa", "🤖 IA"];
+  const TABS = ["👤 Clientes", "🗂️ Fazendas", "📊 Análise", "🗺️ Mapa", "🤖 IA", "🌱 GD"];
 
   if (loading) return (
     <div className="min-h-screen bg-[#faf7f2] flex items-center justify-center">
@@ -1026,6 +1088,109 @@ export default function AgroMap() {
             )}
           </div>
         )}
+
+        {/* ── TAB 5: GD ── */}
+        {tab === 5 && !gdForm && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-[#3a7a1a] font-black text-sm">🌱 GD — {gdList.length} registro(s)</div>
+              <button onClick={gdStartNew} className="bg-[#3a7a1a] text-white font-bold px-4 py-2 rounded-xl text-sm">+ Novo GD</button>
+            </div>
+            {gdList.length === 0 && (
+              <div className={CARD + " p-6 text-center text-[#8a8a6a] text-sm"}>Nenhum GD cadastrado. Toque em "+ Novo GD".</div>
+            )}
+            {gdList.map(g => (
+              <div key={g.id} className={CARD + " p-4"}>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-black text-[#15803d] text-sm">{g.cultura || "—"}{g.cultivar ? " • " + g.cultivar : ""}</div>
+                    <div className="text-xs text-[#5a5a42] mt-1">
+                      {g.data_plantio ? "🗓️ " + g.data_plantio + "   " : ""}
+                      {g.area_ha ? "📐 " + g.area_ha + " ha   " : ""}
+                      {g.sistema ? "💧 " + g.sistema + "   " : ""}
+                      {g.nivel_investimento ? "⭐ " + g.nivel_investimento : ""}
+                    </div>
+                    <div className="text-xs text-[#8a8a6a] mt-1">
+                      {g.espacamento ? "Espaç.: " + g.espacamento + "   " : ""}
+                      {g.populacao ? "Pop.: " + g.populacao + "   " : ""}
+                      {g.cultura_anterior ? "Anterior: " + g.cultura_anterior : ""}
+                    </div>
+                    {g.lat && g.lng ? <div className="text-xs text-[#8a8a6a] mt-1">📍 {g.lat}, {g.lng}</div> : null}
+                  </div>
+                  <div className="flex gap-3 flex-shrink-0">
+                    <button onClick={() => gdStartEdit(g)} className="text-[#3a7a1a] text-base">✏️</button>
+                    <button onClick={() => deleteGD(g.id)} className="text-red-500 text-base">🗑️</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === 5 && gdForm && (
+          <div className={CARD + " p-4"}>
+            <div className="text-[#3a7a1a] font-black text-sm mb-3">🌱 {gdEditId ? "Editar GD" : "Novo GD"}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Cultura *</label>
+                <input className={INP} value={gdForm.cultura} onChange={e => setGdForm(f => ({ ...f, cultura: e.target.value }))} placeholder="Ex: Soja" />
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Cultivar</label>
+                <input className={INP} value={gdForm.cultivar} onChange={e => setGdForm(f => ({ ...f, cultivar: e.target.value }))} placeholder="Ex: 95R10" />
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Data de plantio</label>
+                <input type="date" className={INP} value={gdForm.data_plantio} onChange={e => setGdForm(f => ({ ...f, data_plantio: e.target.value }))} />
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Área (ha)</label>
+                <input className={INP} value={gdForm.area_ha} onChange={e => setGdForm(f => ({ ...f, area_ha: e.target.value }))} placeholder="0" />
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Espaçamento</label>
+                <input className={INP} value={gdForm.espacamento} onChange={e => setGdForm(f => ({ ...f, espacamento: e.target.value }))} placeholder="Ex: 0,50 m" />
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">População</label>
+                <input className={INP} value={gdForm.populacao} onChange={e => setGdForm(f => ({ ...f, populacao: e.target.value }))} placeholder="Ex: 320.000 pl/ha" />
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Cultura anterior</label>
+                <input className={INP} value={gdForm.cultura_anterior} onChange={e => setGdForm(f => ({ ...f, cultura_anterior: e.target.value }))} placeholder="Ex: Milho" />
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Nível de investimento</label>
+                <select className={INP} value={gdForm.nivel_investimento} onChange={e => setGdForm(f => ({ ...f, nivel_investimento: e.target.value }))}>
+                  <option value="">Selecione</option>
+                  <option>Baixo</option>
+                  <option>Médio</option>
+                  <option>Alto</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Sistema</label>
+                <select className={INP} value={gdForm.sistema} onChange={e => setGdForm(f => ({ ...f, sistema: e.target.value }))}>
+                  <option value="">Selecione</option>
+                  <option>Irrigado</option>
+                  <option>Sequeiro</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-3">
+              <label className="text-xs text-[#5a5a42] font-bold block mb-1">📍 Geolocalização</label>
+              <div className="flex gap-2">
+                <input className={INP} value={gdForm.lat} onChange={e => setGdForm(f => ({ ...f, lat: e.target.value }))} placeholder="Latitude" />
+                <input className={INP} value={gdForm.lng} onChange={e => setGdForm(f => ({ ...f, lng: e.target.value }))} placeholder="Longitude" />
+                <button onClick={getGeoGD} className="bg-[#3a7a1a] text-white font-bold px-3 py-2 rounded-lg text-sm whitespace-nowrap">{geoLoading ? "⟳" : "📍 GPS"}</button>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button onClick={saveGD} className="bg-[#3a7a1a] text-white font-black px-6 py-2.5 rounded-xl text-sm">💾 Salvar</button>
+              <button onClick={gdCancel} className="border border-[#ddd8cc] text-[#5a5a42] px-4 py-2.5 rounded-xl text-sm">Cancelar</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* PWA install hint */}
@@ -1037,4 +1202,3 @@ export default function AgroMap() {
     </div>
   );
 }
-
