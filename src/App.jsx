@@ -56,7 +56,7 @@ const queueRemove = (tempId) => { queueSave(queueLoad().filter(i => i.data.id !=
 const GD_LS = "agromap_gd_v1";
 const gdLsLoad = () => { try { return JSON.parse(localStorage.getItem(GD_LS) || "[]"); } catch { return []; } };
 const gdLsSave = (d) => { try { localStorage.setItem(GD_LS, JSON.stringify(d)); } catch {} };
-const emptyGD = () => ({ cultura: "", lat: "", lng: "", data_plantio: "", area_ha: "", cultivar: "", espacamento: "", populacao: "", cultura_anterior: "", nivel_investimento: "", sistema: "" });
+const emptyGD = () => ({ cliente: "", fazenda: "", fazenda_id: "", cultura: "", lat: "", lng: "", data_plantio: "", area_ha: "", cultivar: "", espacamento: "", populacao: "", cultura_anterior: "", nivel_investimento: "", sistema: "" });
 const isOnline = () => navigator.onLine;
 
 // ─── Constants ──────────────────────────────
@@ -267,6 +267,7 @@ export default function AgroMap() {
   const mapRef = useRef(null);
   const [gdList, setGdList] = useState([]);
   const [gdForm, setGdForm] = useState(null);
+  const [gdFilterCliente, setGdFilterCliente] = useState("Todos");
   const [gdEditId, setGdEditId] = useState(null);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
@@ -491,6 +492,7 @@ export default function AgroMap() {
     );
   };
   const saveGD = async () => {
+    if (!gdForm.fazenda_id) { showToast("Selecione o Cliente / Fazenda!"); return; }
     if (!gdForm.cultura) { showToast("Preencha a Cultura!"); return; }
     try {
       if (gdEditId) {
@@ -651,6 +653,8 @@ export default function AgroMap() {
   };
 
   const TABS = ["👤 Clientes", "🗂️ Fazendas", "📊 Análise", "🗺️ Mapa", "🤖 IA", "🌱 GD"];
+  const gdClientes = ["Todos", ...[...new Set(gdList.map(g => g.cliente).filter(Boolean))].sort()];
+  const gdFiltered = gdFilterCliente === "Todos" ? gdList : gdList.filter(g => g.cliente === gdFilterCliente);
 
   if (loading) return (
     <div className="min-h-screen bg-[#faf7f2] flex items-center justify-center">
@@ -1092,18 +1096,24 @@ export default function AgroMap() {
         {/* ── TAB 5: GD ── */}
         {tab === 5 && !gdForm && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="text-[#3a7a1a] font-black text-sm">🌱 GD — {gdList.length} registro(s)</div>
-              <button onClick={gdStartNew} className="bg-[#3a7a1a] text-white font-bold px-4 py-2 rounded-xl text-sm">+ Novo GD</button>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="text-[#3a7a1a] font-black text-sm">🌱 GD — {gdFiltered.length} de {gdList.length}</div>
+              <div className="flex items-center gap-2">
+                <select value={gdFilterCliente} onChange={e => setGdFilterCliente(e.target.value)} className="bg-[#faf7f2] border border-[#ddd8cc] rounded-lg px-3 py-2 text-[#1a1a14] text-sm focus:outline-none focus:border-[#3a7a1a]">
+                  {gdClientes.map(c => <option key={c} value={c}>{c === "Todos" ? "Todos os clientes" : c}</option>)}
+                </select>
+                <button onClick={gdStartNew} className="bg-[#3a7a1a] text-white font-bold px-4 py-2 rounded-xl text-sm whitespace-nowrap">+ Novo GD</button>
+              </div>
             </div>
             {gdList.length === 0 && (
               <div className={CARD + " p-6 text-center text-[#8a8a6a] text-sm"}>Nenhum GD cadastrado. Toque em "+ Novo GD".</div>
             )}
-            {gdList.map(g => (
+            {gdFiltered.map(g => (
               <div key={g.id} className={CARD + " p-4"}>
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="font-black text-[#15803d] text-sm">{g.cultura || "—"}{g.cultivar ? " • " + g.cultivar : ""}</div>
+                    <div className="text-xs text-[#3a7a1a] font-bold mt-0.5">🏢 {g.cliente || "—"}{g.fazenda ? " · " + g.fazenda : ""}</div>
                     <div className="text-xs text-[#5a5a42] mt-1">
                       {g.data_plantio ? "🗓️ " + g.data_plantio + "   " : ""}
                       {g.area_ha ? "📐 " + g.area_ha + " ha   " : ""}
@@ -1131,6 +1141,17 @@ export default function AgroMap() {
           <div className={CARD + " p-4"}>
             <div className="text-[#3a7a1a] font-black text-sm mb-3">🌱 {gdEditId ? "Editar GD" : "Novo GD"}</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                <label className="text-xs text-[#5a5a42] font-bold block mb-1">Cliente / Fazenda *</label>
+                <select className={INP} value={gdForm.fazenda_id || ""} onChange={e => {
+                  const fid = e.target.value;
+                  const fz = farms.find(x => String(x.id) === String(fid));
+                  setGdForm(f => ({ ...f, fazenda_id: fid, cliente: fz ? (fz.cliente || "") : "", fazenda: fz ? (fz.fazenda || "") : "" }));
+                }}>
+                  <option value="">Selecione a fazenda...</option>
+                  {farms.map(x => <option key={x.id} value={x.id}>{(x.cliente || "—") + " — " + (x.fazenda || "—")}</option>)}
+                </select>
+              </div>
               <div>
                 <label className="text-xs text-[#5a5a42] font-bold block mb-1">Cultura *</label>
                 <input className={INP} value={gdForm.cultura} onChange={e => setGdForm(f => ({ ...f, cultura: e.target.value }))} placeholder="Ex: Soja" />
