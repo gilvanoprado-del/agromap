@@ -377,11 +377,18 @@ export default function AgroMap() {
     const queue = queueLoad();
     if (queue.length === 0) return;
     setSyncing(true);
+    // Remove campos internos que não existem como coluna no banco
+    const clean = (obj) => {
+      const { _pending, ...rest } = obj || {};
+      delete rest.created_at;
+      return rest;
+    };
     let remaining = [...queue];
+    let falhas = 0;
     for (const item of queue) {
       try {
         if (item.action === 'insert') {
-          const { id: tempId, ...data } = item.data;
+          const { id: tempId, ...data } = clean(item.data);
           const result = await dbInsert(data);
           const newId = result?.[0]?.id;
           // Update local storage with real ID
@@ -389,7 +396,8 @@ export default function AgroMap() {
           lsSave(local.map(f => f.id === tempId ? { ...f, id: newId, _pending: false } : f));
           setFarms(prev => prev.map(f => f.id === tempId ? { ...f, id: newId, _pending: false } : f));
         } else if (item.action === 'update') {
-          await dbUpdate(item.id, item.data);
+          const { id: _ignore, ...data } = clean(item.data);
+          await dbUpdate(item.id, data);
           const local = lsLoad();
           lsSave(local.map(f => f.id === item.id ? { ...f, _pending: false } : f));
           setFarms(prev => prev.map(f => f.id === item.id ? { ...f, _pending: false } : f));
@@ -401,11 +409,14 @@ export default function AgroMap() {
         setPendingCount(remaining.length);
       } catch (e) {
         console.error('Sync error:', e);
-        break;
+        falhas++;
+        // Pula o item com problema e continua os demais (não trava a fila toda)
+        continue;
       }
     }
     setSyncing(false);
     if (remaining.length === 0) showToast('✅ Sincronizado com sucesso!');
+    else showToast(`Subiram ${queue.length - remaining.length}. ${remaining.length} ainda pendente(s).`);
   };
 
   // Load
