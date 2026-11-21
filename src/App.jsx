@@ -293,13 +293,32 @@ export default function AgroMap() {
     if (isOnline() && queueLoad().length > 0) syncQueue();
   }, []);
 
-  // Carrega GD (nuvem + cache local)
+  // Carrega GD (nuvem + cache local, com recuperação)
   useEffect(() => {
     const cache = gdLsLoad();
     if (cache.length) setGdList(cache);
     (async () => {
       if (!CONFIGURED || !isOnline()) return;
-      try { const r = await gdLoad(); setGdList(r); gdLsSave(r); } catch {}
+      try {
+        const r = await gdLoad();
+        // Recuperação: nuvem vazia mas há GDs guardados localmente → re-sobe em vez de apagar
+        if ((!r || r.length === 0) && cache.length > 0) {
+          for (const g of cache) {
+            try {
+              const { id, created_at, _pending, ...data } = g;
+              await gdInsert(data);
+            } catch (e) { console.error('GD recover error:', e); }
+          }
+          let r2 = [];
+          try { r2 = await gdLoad(); } catch {}
+          if (r2 && r2.length) { setGdList(r2); gdLsSave(r2); }
+          showToast(`♻️ ${cache.length} GD(s) recuperado(s) para a nuvem`);
+        } else {
+          // Só sobrescreve o cache local quando a nuvem tem algo (nunca apaga com vazio)
+          if (r && r.length) { setGdList(r); gdLsSave(r); }
+          else if (!cache.length) { setGdList(r || []); }
+        }
+      } catch (e) { console.error('GD load error:', e); }
     })();
   }, []);
 
